@@ -149,6 +149,22 @@
     .card:hover { box-shadow: 0 4px 12px rgba(139,94,60,.22); }
     .card:focus-visible { border-color: #4c6ef5; }
     .card.active { border-color: var(--accent); }
+    /* 우리 동네 반려견 동반 카드 */
+    .card.pet { border-color: var(--apricot); background: linear-gradient(#fffaf3, #fff3e3); }
+    .card.pet.active { border-color: var(--accent); }
+    .pet-tag { color: var(--accent-dark); font-weight: 700; }
+    .num.paw { background: var(--apricot); padding: 3px; }
+    .num.paw svg { width: 100%; height: 100%; display: block; }
+    /* 목록 안 구역 이름표 (옆으로 넘길 땐 작은 세로 칸, 펼치면 제목 줄) */
+    .cards-label {
+      flex: 0 0 76px; align-self: stretch; scroll-snap-align: start;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+      padding: 8px 6px; text-align: center; word-break: keep-all;
+      font: 400 14px/1.25 var(--round); color: var(--brown);
+      background: #fff4e6; border: 2px dashed var(--apricot); border-radius: 16px;
+    }
+    .cards-label .fi { width: 22px; height: 22px; }
+    .cards-label.plain { background: transparent; border-color: var(--line); color: var(--muted); }
     .thumb { position: relative; height: 96px; background: #f1e4d3 center / cover no-repeat; flex: none; }
     .thumb.noimg { display: grid; place-items: center; color: #c4ab92; font-size: 12px; }
     .num {
@@ -218,6 +234,9 @@
       transform: scale(1.3);
     }
     .pin.active .pin-num { background: var(--accent); }
+    .pin.pet { border-color: var(--accent); }
+    .pin.pet .pin-num { background: var(--accent); padding: 2px; }
+    .pin.pet .pin-num svg { width: 13px; height: 13px; display: block; }
     /* 강아지가 아이콘을 먹을 때: 강아지 입 쪽(--dx)으로 빨려 들어가며 사라졌다가, 잠시 뒤 다시 뿅 나타나요 */
     .pin.eaten .pin-icon { animation: eaten .8s ease-in forwards; }
     .pin.refill .pin-icon { animation: refill .45s cubic-bezier(.3, 1.6, .5, 1); }
@@ -557,6 +576,10 @@
       overflow-x: hidden; overflow-y: auto; scroll-snap-type: none;
     }
     .panel[data-sheet="full"] .card { flex: none; }
+    .panel[data-sheet="full"] .cards-label {
+      flex: none; flex-direction: row; justify-content: flex-start;
+      padding: 6px 2px 0; background: none; border: 0;
+    }
     .panel[data-sheet="full"] .note { display: block; }
     .panel[data-sheet="min"] .cards { visibility: hidden; }
 
@@ -928,6 +951,10 @@
         <path d="M16 29 Q7 18.5 7 12.5 A9 9 0 0 1 25 12.5 Q25 18.5 16 29 Z" fill="url(#g-pin)"/>
         <circle cx="16" cy="12.5" r="3.4" fill="#fff"/>
         ${shine(12.3, 8.6, 1.8, 1, -35, .6)}`;
+    // 발바닥 (반려견 동반 표시)
+    const PAW_ICON = `
+        <g fill="url(#g-pin)"><ellipse cx="16" cy="20.5" rx="7" ry="6"/><circle cx="8.3" cy="12.5" r="2.9"/><circle cx="12.8" cy="7.6" r="2.9"/><circle cx="19.2" cy="7.6" r="2.9"/><circle cx="23.7" cy="12.5" r="2.9"/></g>
+        ${shine(13.5, 18, 2.4, 1.2, -20, .55)}`;
     // 그림 조각을 완성된 SVG로 (바닥에 은은한 그림자를 깔아요)
     const ic = (inner) => `<svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="28.4" rx="11" ry="2.4" fill="url(#g-shadow)"/>${inner}</svg>`;
 
@@ -1018,12 +1045,27 @@
       'googleMapsURI', 'photos',
     ];
 
+    // 우리 동네(구) 반려견 동반 장소: 검색어와, 이름으로 알아보는 낱말
+    // 구글의 '반려견 동반 가능(allowsDogs)' 정보를 받으면 그 검색은 요금 단계가 올라가서,
+    // 동네가 바뀔 때만 한 번 검색하고 결과를 저장해 다시 써요.
+    const PET = { query: '애견동반', words: /애견|반려견|반려동물|펫|도그|강아지|댕댕/, max: 6, biasM: 6000 };
+    const PET_FIELDS = [...FIELDS, 'allowsDogs'];
+
     const WALK_M_PER_MIN = 67;   // 약 4km/h
     const DETOUR = 1.3;          // 직선거리 → 실제 걷는 거리 보정
 
     // 강아지가 점선을 따라 걷는 속도: 거리 1m당 ms (최소~최대 시간 안에서). 숫자가 클수록 느려요.
     const DOG_WALK = { msPerM: 15, minMs: 4000, maxMs: 12000 };
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    // 지도 위 발자국 모양 (발가락이 가는 방향을 봐요). 발바닥 + 발가락 4개.
+    const circlePath = (cx, cy, rx, ry = rx) =>
+      `M${cx - rx},${cy} a${rx},${ry} 0 1,0 ${rx * 2},0 a${rx},${ry} 0 1,0 ${-rx * 2},0`;
+    const PAW_PATH = [
+      circlePath(0, 2, 2.3, 1.9),
+      circlePath(-2.5, -1.4, 0.95), circlePath(-0.95, -3, 0.95),
+      circlePath(0.95, -3, 0.95), circlePath(2.5, -1.4, 0.95),
+    ].join(' ');
 
     // Figma에서 받은 강아지 그림 조각 (원본 파일: assets/dog/*.svg).
     // 파일을 따로 불러오면 더블클릭으로 열거나 다른 곳(Figma 등)에서 열 때 그림이 깨져서(엑박),
@@ -1067,6 +1109,9 @@
       openOnly: false,
       minRating: 0,
       base: null,          // 검색 기준점 { pos, name, isMe } — 내 위치 또는 검색한 장소
+      pets: [],            // 우리 동네 반려견 동반 장소 (목록 맨 앞에 소개)
+      petDistrict: '',
+      petCache: new Map(), // 동네 이름 → 장소들
       results: [],
       activeId: null,
       token: 0,
@@ -1075,6 +1120,7 @@
 
     let map, Place, AdvancedMarkerElement, radiusCircle, routeLine, baseMarker;
     let dog, dogPos, dogFrame, dogIdleTimer, accuracyCircle, locateBtn, watchId, statusTimer;
+    let lastMarkerTap = 0; // 마커를 누른 직후의 지도 클릭은 '바깥 누르기'로 치지 않아요
     let dogTrip = false;   // 강아지가 식당에 가 있는 중 (그동안은 내 위치를 따라가지 않아요)
     let centerOnNextFix = false, rebaseOnFix = false, eatTimers = [], pickTimer, picking = false;
     const markers = new Map();
@@ -1140,13 +1186,23 @@
         fillColor: '#e07a4f', fillOpacity: 0.06,
       });
 
-      // 기준점 → 선택한 식당 점선
+      // 지도 빈 곳을 누르면 고른 매장을 풀고 모든 마커를 다시 보여 줘요
+      map.addListener('click', () => {
+        if (Date.now() - lastMarkerTap < 400) return;
+        clearSelection();
+      });
+
+      // 기준점 → 선택한 식당: 강아지 발자국 (왼발·오른발이 번갈아 찍혀요)
+      const paw = (side) => ({
+        path: PAW_PATH, anchor: new google.maps.Point(side * 3.2, 0),
+        fillColor: '#8b5e3c', fillOpacity: 0.55, strokeWeight: 0, scale: 1.5,
+      });
       routeLine = new google.maps.Polyline({
         map, zIndex: 5, strokeOpacity: 0,
-        icons: [{
-          icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: '#e07a4f', scale: 3 },
-          offset: '0', repeat: '12px',
-        }],
+        icons: [
+          { icon: paw(1), offset: '10px', repeat: '30px' },
+          { icon: paw(-1), offset: '25px', repeat: '30px' },
+        ],
       });
 
       // 강아지 (식당을 고르거나 현위치를 켜면 나타나요) + 내 위치 정확도 원
@@ -1353,6 +1409,8 @@
           state.cache.set(key, items);
         }
         if (token !== state.token) return;          // 더 새 검색이 시작됐으면 무시
+        await loadPets(items);
+        if (token !== state.token) return;
         state.results = items;
         state.activeId = null;
         hideStatus();
@@ -1371,6 +1429,79 @@
     function boundsAround(c, r) {
       const dLat = r / 111320, dLng = r / (111320 * Math.cos(c.lat * Math.PI / 180));
       return { north: c.lat + dLat, south: c.lat - dLat, east: c.lng + dLng, west: c.lng - dLng };
+    }
+
+    // 구글 장소 → 화면에서 쓰는 식당 정보
+    async function toItem(p, center, cat) {
+      const loc = { lat: p.location.lat(), lng: p.location.lng() };
+      const d = distanceM(center, loc);
+      let open;
+      try { open = await p.isOpen(); } catch { open = undefined; }
+      return {
+        id: p.id,
+        name: p.displayName,
+        loc,
+        distance: d,
+        walk: walkMin(d),
+        open,
+        rating: p.rating,
+        reviews: p.userRatingCount || 0,
+        type: p.primaryTypeDisplayName || '',
+        kind: kindFor(p.displayName || '', p.primaryTypeDisplayName || '', p.primaryType, cat),
+        price: PRICE[p.priceLevel] || '',
+        url: p.googleMapsURI,
+        photo: p.photos?.[0],
+        status: p.businessStatus,
+        address: p.formattedAddress || '',
+      };
+    }
+
+    // 주소에서 동네(구, 없으면 시·군)를 찾아요. 예) '대한민국 서울특별시 영등포구 여의대로 108' → 영등포구
+    function districtOf(address) {
+      const words = address.split(/\s+/);
+      return words.find((w) => /.+구$/.test(w))
+        || words.find((w) => /.+[시군]$/.test(w) && !/(특별|광역|특별자치)시$/.test(w))
+        || '';
+    }
+
+    // 우리 동네 반려견 동반 장소: 기준점이 있는 구 안에서 '애견동반'으로 찾고,
+    // 구글이 반려견 동반 가능이라고 했거나 이름에 애견·반려견 같은 말이 있는 곳만 골라 평점 순으로.
+    async function fetchPets(district, center) {
+      const { places } = await Place.searchByText({
+        textQuery: `${district} ${PET.query}`,
+        fields: PET_FIELDS,
+        locationBias: { center, radius: PET.biasM },
+        maxResultCount: 20,
+        language: 'ko',
+        region: 'kr',
+      });
+      const all = CATEGORIES[0];
+      const picked = (places || []).filter((p) =>
+        (p.formattedAddress || '').includes(district)
+        && p.businessStatus !== 'CLOSED_PERMANENTLY'
+        && (p.allowsDogs === true || PET.words.test(p.displayName || '')));
+      const items = await Promise.all(picked.map((p) => toItem(p, center, all)));
+      return items
+        .sort((a, b) => (b.rating || 0) - (a.rating || 0) || b.reviews - a.reviews)
+        .slice(0, PET.max);
+    }
+
+    // 지금 기준점의 동네로 반려견 동반 장소를 준비해요 (동네별로 한 번만 검색)
+    async function loadPets(results) {
+      const district = districtOf(results.find((it) => districtOf(it.address))?.address || '');
+      if (!district) { state.pets = []; state.petDistrict = ''; return; }
+      let pets = state.petCache.get(district);
+      if (!pets) {
+        try { pets = await fetchPets(district, state.base.pos); }
+        catch (err) { console.warn('반려견 동반 장소를 못 불러왔어요', err); pets = []; }
+        state.petCache.set(district, pets);
+      }
+      const base = state.base.pos;
+      state.pets = pets.map((it) => {
+        const d = distanceM(base, it.loc);
+        return { ...it, distance: d, walk: walkMin(d) };
+      });
+      state.petDistrict = district;
     }
 
     async function fetchPlaces(cat, radius) {
@@ -1396,28 +1527,7 @@
         }));
       }
 
-      const items = await Promise.all((places || []).map(async (p) => {
-        const loc = { lat: p.location.lat(), lng: p.location.lng() };
-        const d = distanceM(center, loc);
-        let open;
-        try { open = await p.isOpen(); } catch { open = undefined; }
-        return {
-          id: p.id,
-          name: p.displayName,
-          loc,
-          distance: d,
-          walk: walkMin(d),
-          open,
-          rating: p.rating,
-          reviews: p.userRatingCount || 0,
-          type: p.primaryTypeDisplayName || '',
-          kind: kindFor(p.displayName || '', p.primaryTypeDisplayName || '', p.primaryType, cat),
-          price: PRICE[p.priceLevel] || '',
-          url: p.googleMapsURI,
-          photo: p.photos?.[0],
-          status: p.businessStatus,
-        };
-      }));
+      const items = await Promise.all((places || []).map((p) => toItem(p, center, cat)));
 
       // 네모 범위의 모서리 쪽은 반경 밖이라 한 번 더 걸러요.
       return items.filter((it) => it.distance <= radius && it.status !== 'CLOSED_PERMANENTLY');
@@ -1436,22 +1546,34 @@
         .sort(sorters[state.sort]);
     }
 
+    // 우리 동네 반려견 동반 장소 (영업 중·평점 필터는 똑같이 적용)
+    function visiblePets() {
+      return state.pets
+        .filter((it) => !state.openOnly || it.open === true)
+        .filter((it) => (it.rating || 0) >= state.minRating);
+    }
+
     function render() {
-      const list = visibleItems();
+      const pets = visiblePets();
+      const petIds = new Set(pets.map((it) => it.id));
+      const list = visibleItems().filter((it) => !petIds.has(it.id));   // 겹치면 반려견 쪽에만
       stopPicking();
       hidePickResult();
 
       markers.forEach(({ marker }) => { marker.map = null; });
       markers.clear();
       clearLine();
-      if (!list.some((it) => it.id === state.activeId)) state.activeId = null;
+      if (![...list, ...pets].some((it) => it.id === state.activeId)) state.activeId = null;
 
-      list.forEach((it, i) => {
+      const pins = [...pets.map((it) => [it, true]), ...list.map((it) => [it, false])];
+      pins.forEach(([it, pet]) => {
         const el = document.createElement('div');
-        el.className = 'pin';
-        el.innerHTML = `<span class="pin-icon" aria-hidden="true">${ic(KINDS[it.kind].icon)}</span><span class="pin-num">${i + 1}</span>`;
+        el.className = pet ? 'pin pet' : 'pin';
+        const badge = pet ? ic(PAW_ICON) : list.indexOf(it) + 1;
+        el.innerHTML = `<span class="pin-icon" aria-hidden="true">${ic(KINDS[it.kind].icon)}</span><span class="pin-num">${badge}</span>`;
         el.addEventListener('click', (e) => {
           e.stopPropagation();
+          lastMarkerTap = Date.now();
           select(it.id, { scroll: true });
         });
         const marker = new AdvancedMarkerElement({ map, position: it.loc, content: el, title: it.name });
@@ -1460,12 +1582,18 @@
 
       const catLabel = CATEGORIES.find((c) => c.id === state.category).label;
       const where = state.base ? `<span class="fi" aria-hidden="true">${ic(PIN_ICON)}</span> ${esc(state.base.name)}` : '';
+      const petNote = pets.length ? ` · <span class="pet-tag">반려견 동반 ${pets.length}곳</span>` : '';
       $('summary').innerHTML = list.length
-        ? `<b>${list.length}곳</b> · ${esc(catLabel)} · 반경 ${fmtDist(state.radius)} · ${where}`
-        : `${esc(catLabel)} · 결과 없음 · ${where}`;
+        ? `<b>${list.length}곳</b> · ${esc(catLabel)} · 반경 ${fmtDist(state.radius)} · ${where}${petNote}`
+        : `${esc(catLabel)} · 결과 없음 · ${where}${petNote}`;
 
-      $('cards').innerHTML = list.length
-        ? list.map(cardHTML).join('')
+      const petBlock = pets.length
+        ? `<div class="cards-label"><span class="fi" aria-hidden="true">${ic(PAW_ICON)}</span><span>${esc(state.petDistrict)}<br>반려견 동반</span></div>`
+          + pets.map((it, i) => cardHTML(it, i, true)).join('')
+          + (list.length ? '<div class="cards-label plain">근처<br>맛집</div>' : '')
+        : '';
+      $('cards').innerHTML = (pets.length || list.length)
+        ? petBlock + list.map((it, i) => cardHTML(it, i)).join('')
         : `<div class="empty">${state.base
           ? '조건에 맞는 곳이 없어요. 반경을 넓히거나 다른 메뉴·평점을 골라 보세요.'
           : '내 위치를 확인하고 있어요. 위 검색창에서 동네를 찾아도 돼요.'}</div>`;
@@ -1473,17 +1601,18 @@
       if (state.activeId) select(state.activeId, { pan: false });
     }
 
-    function cardHTML(it, i) {
+    function cardHTML(it, i, pet = false) {
+      const num = pet ? `<span class="num paw">${ic(PAW_ICON)}</span>` : `<span class="num">${i + 1}</span>`;
       let thumb;
       if (it.photo) {
         const uri = it.photo.getURI({ maxWidth: 400, maxHeight: 300 });
         const a = it.photo.authorAttributions?.[0];
         thumb = `<div class="thumb" style="background-image:url('${esc(uri)}')">
-            <span class="num">${i + 1}</span>
+            ${num}
             ${a ? `<a class="credit" href="${esc(a.uri)}" target="_blank" rel="noopener">사진: ${esc(a.displayName)}</a>` : ''}
           </div>`;
       } else {
-        thumb = `<div class="thumb noimg"><span class="num">${i + 1}</span>사진 없음</div>`;
+        thumb = `<div class="thumb noimg">${num}사진 없음</div>`;
       }
 
       const rating = it.rating
@@ -1498,9 +1627,10 @@
       const kind = KINDS[it.kind];
       const kindTag = `<span class="kind"><span class="fi" aria-hidden="true">${ic(kind.icon)}</span> ${esc(kind.label)}</span>`;
       const gType = it.type && !it.type.startsWith(kind.label) ? it.type : '';
-      const meta = [kindTag, ...[gType, it.price].filter(Boolean).map(esc)].join(' · ');
+      const petTag = pet ? '<span class="pet-tag">반려견 동반</span>' : '';
+      const meta = [petTag, kindTag, ...[gType, it.price].filter(Boolean).map(esc)].filter(Boolean).join(' · ');
 
-      return `<article class="card" data-id="${esc(it.id)}" tabindex="0" role="button" aria-label="${esc(it.name)}">
+      return `<article class="card${pet ? ' pet' : ''}" data-id="${esc(it.id)}" tabindex="0" role="button" aria-label="${esc(it.name)}">
           ${thumb}
           <div class="body">
             <div class="meta">${meta}</div>
@@ -1517,7 +1647,7 @@
 
     /* ---------- 선택(활성화) ---------- */
     function select(id, { scroll = false, pan = true } = {}) {
-      const it = state.results.find((r) => r.id === id);
+      const it = findItem(id);
       if (!it) return;
       state.activeId = id;
       // 목록을 펼쳐 둔 채 고르면 지도(강아지)가 보이게 중간 높이로 내리고, 고른 카드로 넘겨요
@@ -1525,10 +1655,12 @@
       if (pan && sheetState !== 'peek') setSheet('peek');
       if (pan) scroll = true;
 
+      // 고른 매장만 남기고 다른 마커는 잠깐 숨겨요
       markers.forEach(({ marker, el }, key) => {
         const on = key === id;
         el.classList.toggle('active', on);
         marker.zIndex = on ? 999 : null;
+        marker.map = on ? map : null;
       });
       document.querySelectorAll('.card').forEach((c) =>
         c.classList.toggle('active', c.dataset.id === id));
@@ -1552,7 +1684,22 @@
 
     /* ---------- 점선 + 강아지 ---------- */
     const lerp = (a, b, f) => ({ lat: a.lat + (b.lat - a.lat) * f, lng: a.lng + (b.lng - a.lng) * f });
-    const activeItem = () => state.results.find((r) => r.id === state.activeId);
+    const findItem = (id) => state.results.find((r) => r.id === id) || state.pets.find((r) => r.id === id);
+    const activeItem = () => findItem(state.activeId);
+
+    // 고른 매장 풀기: 마커를 모두 다시 보여 주고 발자국·결과 카드를 지워요
+    function clearSelection() {
+      if (!state.activeId) return;
+      state.activeId = null;
+      hidePickResult();
+      markers.forEach(({ marker, el }) => {
+        el.classList.remove('active');
+        marker.zIndex = null;
+        marker.map = map;
+      });
+      document.querySelectorAll('.card.active').forEach((c) => c.classList.remove('active'));
+      clearLine();
+    }
 
     // 점선 출발점: 기준점이 '내 위치'면 지금 내 자리, 아니면 검색한 장소
     function lineOrigin() {
@@ -1561,16 +1708,19 @@
       return { pos: b ? b.pos : CONFIG.koreaCenter, fromMe: false };
     }
 
-    // 식당까지 점선을 긋고, 강아지가 출발점에서 식당까지 한 번 걸어가서 냠냠해요.
+    // 강아지가 출발점에서 식당까지 한 번 걸어가며 발자국을 남기고, 도착하면 냠냠해요.
     // 다 먹은 뒤에도 식당 옆에 그대로 있어요. (현위치가 켜져 있어도 따라오지 않고,
     // 목록이 새로 그려지거나 '내 위치'를 다시 누르면 내 자리로 돌아와요.)
     function showLine(it, { walk = true } = {}) {
       const origin = lineOrigin();
-      routeLine.setPath([origin.pos, it.loc]);
       if (walk) {
         dogTrip = true;
-        walkDog(origin.pos, it.loc, () => eatIcon(it.id));
-      } else if (!me.pos) {                           // 이미 도착해 있던 자리에 그대로 둬요
+        routeLine.setPath([origin.pos, origin.pos]);   // 발자국은 강아지가 걸은 만큼만
+        walkDog(origin.pos, it.loc, () => eatIcon(it.id), (pos) => routeLine.setPath([origin.pos, pos]));
+        return;
+      }
+      routeLine.setPath([origin.pos, it.loc]);
+      if (!me.pos) {                           // 이미 도착해 있던 자리에 그대로 둬요
         dog.map = map;
         dog.content.classList.add('trail');
         dogPos = it.loc;
@@ -1597,7 +1747,7 @@
 
 
     // from → to 로 강아지가 한 번 걸어가고, 도착하면 멈춰서 그 자리에 있어요. 도착하면 onArrive 실행.
-    function walkDog(from, to, onArrive) {
+    function walkDog(from, to, onArrive, onStep) {
       const el = dog.content;
       cancelAnimationFrame(dogFrame);
       clearTimeout(dogIdleTimer);
@@ -1609,10 +1759,11 @@
       if (reduceMotion.matches) {                     // 움직임 줄이기 설정이면 바로 도착 (연출 없이)
         dogPos = to;
         dog.position = to;
+        onStep?.(to);
         return;
       }
       const duration = Math.min(DOG_WALK.maxMs, Math.max(DOG_WALK.minMs, distanceM(from, to) * DOG_WALK.msPerM));
-      animateDog(from, to, duration, onArrive);
+      animateDog(from, to, duration, onArrive, onStep);
     }
 
     // 도착하면 식당 아이콘을 냠냠 먹고(0.9초), 하트를 뿅뿅 날리며 좋아해요(약 2초). 아이콘은 다시 채워져요.
@@ -1662,7 +1813,7 @@
       dog.map = null;
     }
 
-    function animateDog(from, to, duration, onDone) {
+    function animateDog(from, to, duration, onDone, onStep) {
       const el = dog.content;
       el.classList.add('moving');
       const t0 = performance.now();
@@ -1670,6 +1821,7 @@
         const t = Math.min(1, (now - t0) / duration);
         dogPos = lerp(from, to, t);
         dog.position = dogPos;
+        onStep?.(dogPos);
         if (t < 1) {
           dogFrame = requestAnimationFrame(step);
         } else {
@@ -1803,7 +1955,9 @@
         return;
       }
       // 방금 고른 곳은 빼고 골라요 (한 곳뿐이면 그곳)
-      const pool = list.length > 1 ? list.filter((it) => it.id !== state.activeId) : list;
+      const prevId = state.activeId;
+      clearSelection();                               // 숨겨 둔 마커를 다시 보여 주고 골라요
+      const pool = list.length > 1 ? list.filter((it) => it.id !== prevId) : list;
       const pick = pool[Math.floor(Math.random() * pool.length)];
 
       picking = true;
@@ -1903,7 +2057,7 @@
       setLocateState('off');
       updateBaseMarker();                             // 강아지 대신 기준점 말풍선을 다시 보여요
       const it = activeItem();
-      if (it) routeLine.setPath([lineOrigin().pos, it.loc]);
+      if (it && !dogTrip) routeLine.setPath([lineOrigin().pos, it.loc]);
     }
 
     function onPosition(p) {
@@ -1926,7 +2080,7 @@
       updateBaseMarker();
 
       const it = activeItem();
-      if (it) routeLine.setPath([lineOrigin().pos, it.loc]);
+      if (it && !dogTrip) routeLine.setPath([lineOrigin().pos, it.loc]);
     }
 
     function onPositionError(err) {
