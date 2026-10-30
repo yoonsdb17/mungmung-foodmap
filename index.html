@@ -76,7 +76,7 @@
     }
     h1 small { display: block; font: 500 12px/1.3 Pretendard, sans-serif; color: var(--muted); margin-top: 3px; }
     .logo { width: 42px; height: 42px; flex: none; filter: drop-shadow(0 1px 2px rgba(139,94,60,.3)); }
-    .logo svg { width: 100%; height: 100%; display: block; }
+    .logo img { display: block; width: 100%; height: 100%; object-fit: contain; }
     .controls { display: flex; flex-wrap: wrap; gap: 8px; }
     select {
       font: inherit; font-size: 13px;
@@ -232,8 +232,19 @@
       pointer-events: none;
       filter: drop-shadow(0 1px 2px rgba(0,0,0,.35));
     }
-    .dog svg { width: 100%; height: 100%; display: block; overflow: visible; }
-    .dog.left > svg { transform: scaleX(-1); }    /* 그림은 오른쪽을 보고 있어요 */
+    .dog img { position: absolute; display: block; max-width: none; }
+    .dog-flip, .dog-all { position: absolute; inset: 0; }
+    .dog.left > .dog-flip { transform: scaleX(-1); }    /* 그림은 오른쪽을 보고 있어요 */
+    /* Figma 레이어 위치 (강아지 칸 50×39 기준) */
+    .dog-shadow { left: 7.5px; top: 35.7px; }
+    .dog-tail { left: 6.81px; top: 5.96px; }
+    .dog-leg-back-far { left: 15.14px; top: 25px; }
+    .dog-leg-front-far { left: 29.36px; top: 25px; }
+    .dog-body { left: 10.22px; top: 16.44px; }
+    .dog-leg-back-near { left: 11.92px; top: 26.45px; }
+    .dog-leg-front-near { left: 31.4px; top: 25.31px; }
+    .dog-neck { left: 0; top: 0; }
+    .dog-head { left: 25px; top: 2px; }
     /* 점선을 걸을 땐 강아지를 살짝 뒤로 빼서, 도착하면 입이 식당 아이콘 바로 옆에 오게 해요 */
     .dog.trail { transform: translateX(-34px); }
     .dog.trail.left { transform: translateX(34px); }
@@ -253,6 +264,7 @@
       width: 14px; height: 13px;
       animation: float-heart 1.6s ease-out forwards;
     }
+    .heart svg { width: 100%; height: 100%; display: block; overflow: visible; }
     .dog.left .heart { left: 14%; }
     @keyframes float-heart {
       0%   { transform: translate(0, 6px) scale(.3); opacity: 0; }
@@ -525,17 +537,7 @@
     <header>
       <div class="title-row">
         <h1>
-          <span class="logo" aria-hidden="true"><svg viewBox="0 0 32 32">
-            <g fill="#d9cfc2"><circle cx="16" cy="17" r="11.2"/><circle cx="16" cy="6" r="4.6"/></g>
-            <g fill="#fff"><circle cx="16" cy="17" r="10"/><circle cx="16" cy="6" r="3.6"/></g>
-            <ellipse cx="6.6" cy="18.5" rx="3.4" ry="6.6" fill="#f3ece2" stroke="#d9cfc2" stroke-width=".8"/>
-            <ellipse cx="25.4" cy="18.5" rx="3.4" ry="6.6" fill="#f3ece2" stroke="#d9cfc2" stroke-width=".8"/>
-            <circle cx="12.4" cy="16" r="1.5" fill="#3b2a1f"/><circle cx="19.6" cy="16" r="1.5" fill="#3b2a1f"/>
-            <ellipse cx="16" cy="20.3" rx="2" ry="1.5" fill="#3b2a1f"/>
-            <path d="M16 21.6 v1.4 M13.9 22.8 q2.1 1.7 4.2 0" stroke="#3b2a1f" stroke-width="1" fill="none" stroke-linecap="round"/>
-            <path d="M11.4 3 L16 5.2 L11.4 7.4Z M20.6 3 L16 5.2 L20.6 7.4Z" fill="#ff7aa2"/>
-            <circle cx="16" cy="5.2" r="1.2" fill="#e85a85"/>
-          </svg></span>
+          <span class="logo" aria-hidden="true"><img src="assets/dog/header-logo.svg" alt="" width="28" height="28"></span>
           <span>멍멍 푸드맵<small><span class="fi" id="baseIcon" aria-hidden="true"></span> <span class="base-label" id="baseLabel">위치 확인 중…</span> 근처 맛집, 못 고르겠으면 강아지한테 맡겨요</small></span>
         </h1>
         <form class="place-search" id="placeForm" role="search" autocomplete="off">
@@ -947,52 +949,19 @@
     const DOG_WALK = { msPerM: 15, minMs: 4000, maxMs: 12000 };
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    // 강아지 그림: 흰 말티즈 (오른쪽을 보고 있음) — 3D 느낌
-    // 몸통은 같은 모양을 연회색으로 한 번(테두리), 둥근 그러데이션 털로 한 번 겹쳐 그려요.
-    // 머리를 크게, 눈을 크고 반짝이게 해서 더 귀엽게.
-    const DOG_OUTLINE = '#d3cbc0';
-    const DOG_BODY = `
-        <ellipse cx="17.5" cy="18" rx="10" ry="6.2"/>
-        <circle cx="10" cy="21.6" r="2.6"/><circle cx="14.3" cy="22.6" r="2.6"/>
-        <circle cx="18.8" cy="22.6" r="2.6"/><circle cx="23.2" cy="22" r="2.6"/>
-        <circle cx="25.5" cy="16.5" r="4"/>
-        <circle cx="29.5" cy="10.5" r="7.2"/>
-        <circle cx="28.6" cy="3.6" r="2.8"/>
-        <ellipse cx="35.4" cy="12.6" rx="3.5" ry="2.9"/>`;
-    const dogLeg = (cls, x) => `<g class="dleg ${cls}">
-          <line x1="${x}" y1="20.5" x2="${x}" y2="28.4" stroke="${DOG_OUTLINE}" stroke-width="5.4" stroke-linecap="round"/>
-          <line x1="${x}" y1="20.5" x2="${x}" y2="28.4" stroke="#f7f3ee" stroke-width="3.6" stroke-linecap="round"/>
-          <ellipse cx="${x}" cy="28.4" rx="1.8" ry=".9" fill="#fff"/>
-        </g>`;
-    const DOG_SVG = `<svg viewBox="0 0 40 30" aria-hidden="true"><g class="dog-all">
-        <ellipse cx="18" cy="29.2" rx="13" ry="1.6" fill="url(#g-shadow)"/>
-        <g class="tail">
-          <path d="M10 15.5 C5 14.5 4 8.5 8.5 7" fill="none" stroke="${DOG_OUTLINE}" stroke-width="6.2" stroke-linecap="round"/>
-          <path d="M10 15.5 C5 14.5 4 8.5 8.5 7" fill="none" stroke="#fbf8f4" stroke-width="4.4" stroke-linecap="round"/>
-          <circle cx="8.5" cy="7" r="2.8" fill="url(#g-dogfur)" stroke="${DOG_OUTLINE}" stroke-width="1"/>
-        </g>
-        ${dogLeg('a', 11)}${dogLeg('b', 14.5)}${dogLeg('b', 21)}${dogLeg('a', 24.5)}
-        <g fill="${DOG_OUTLINE}" stroke="${DOG_OUTLINE}" stroke-width="2">${DOG_BODY}</g>
-        <g fill="url(#g-dogfur)">${DOG_BODY}</g>
-        <ellipse cx="17" cy="21.3" rx="8" ry="1.8" fill="#e3dbd0" opacity=".55"/>
-        <ellipse cx="16" cy="14.2" rx="5" ry="1.6" fill="#fff" opacity=".95"/>
-        <ellipse cx="27.6" cy="6.4" rx="2.6" ry="1.3" fill="#fff" opacity=".95"/>
-        <ellipse cx="25.8" cy="12.6" rx="2.9" ry="5.6" fill="url(#g-ear)" stroke="#d8c8b3" stroke-width=".8" transform="rotate(10 25.8 12.6)"/>
-        <g class="eye-open">
-          <ellipse cx="31.6" cy="9.8" rx="1.75" ry="1.95" fill="#2a1c14"/>
-          <circle cx="32.2" cy="9.1" r=".65" fill="#fff"/><circle cx="31.1" cy="10.6" r=".3" fill="#fff"/>
-        </g>
-        <path class="eye-happy" d="M30.1 10.4 Q31.6 8.1 33.1 10.4" fill="none" stroke="#2a1c14" stroke-width="1.1" stroke-linecap="round"/>
-        <ellipse cx="38.1" cy="11.8" rx="1.5" ry="1.25" fill="url(#g-dognose)"/>
-        <ellipse cx="37.7" cy="11.4" rx=".45" ry=".3" fill="#fff" opacity=".8"/>
-        <path d="M36.4 14.2 Q35.6 15.6 34.4 15.2" fill="none" stroke="#8a6e60" stroke-width=".7" stroke-linecap="round"/>
-        <ellipse cx="35.6" cy="16" rx="1.15" ry=".95" fill="#f48aa0"/>
-        <ellipse cx="33" cy="13.4" rx="1.5" ry=".85" fill="#ffb3c6" opacity=".7"/>
-        <ellipse class="blush" cx="33" cy="13.4" rx="1.6" ry=".9" fill="#ff8fab"/>
-        <path d="M25.6 1.6 L28.6 3.4 L25.6 5.2Z M31.6 1.6 L28.6 3.4 L31.6 5.2Z" fill="url(#g-bow)"/>
-        <circle cx="28.6" cy="3.4" r="1" fill="#e04a7a"/>
-        ${'<ellipse cx="26.6" cy="2.7" rx=".7" ry=".35" fill="#fff" opacity=".7"/>'}
-      </g></svg>`;
+    // 강아지 그림: Figma의 웃는 말티즈 전신을 원본 레이어와 위치 그대로 조합해요 (assets/dog/).
+    // 다리(dleg)와 꼬리(tail)는 따로 된 그림이라 걸을 때 흔들려요.
+    const DOG_SVG = `<div class="dog-flip" aria-hidden="true"><div class="dog-all">
+        <img class="dog-shadow" src="assets/dog/shadow.svg" alt="">
+        <img class="dog-tail tail" src="assets/dog/tail.svg" alt="">
+        <img class="dog-leg-back-far dleg b" src="assets/dog/leg-back-far.svg" alt="">
+        <img class="dog-leg-front-far dleg a" src="assets/dog/leg-front-far.svg" alt="">
+        <img class="dog-body" src="assets/dog/body.svg" alt="">
+        <img class="dog-leg-back-near dleg a" src="assets/dog/leg-back-near.svg" alt="">
+        <img class="dog-leg-front-near dleg b" src="assets/dog/leg-front-near.svg" alt="">
+        <img class="dog-neck" src="assets/dog/neck.svg" alt="">
+        <img class="dog-head" src="assets/dog/head.svg" alt="">
+      </div></div>`;
     const HEART_SVG = `<svg viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21 C5 15.5 1 12 1 7 A5.5 5.5 0 0 1 12 4.5 A5.5 5.5 0 0 1 23 7 C23 12 19 15.5 12 21Z" fill="url(#g-bow)" stroke="#fff" stroke-width="1.5"/><ellipse cx="7" cy="7" rx="2.2" ry="1.3" fill="#fff" opacity=".7" transform="rotate(-30 7 7)"/></svg>`;
     const LOCATE_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
         <circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/>
