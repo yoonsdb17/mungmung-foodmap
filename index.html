@@ -359,6 +359,68 @@
     .pick-btn .fi, .pick-go .fi { width: 20px; height: 20px; vertical-align: middle; }
     .pick-btn:disabled .fi { animation: wag .18s ease-in-out infinite alternate; }
 
+    /* 강아지가 고른 결과 카드: 강아지가 말풍선으로 "여기 어때요?" 하고 알려 줘요 */
+    .pick-result {
+      position: absolute; top: 14px; left: 50%; z-index: 4;
+      width: min(350px, calc(100% - 24px));
+      transform: translateX(-50%);
+      padding: 14px 16px 14px 92px;
+      background: var(--card) var(--paws);
+      border: 2.5px solid var(--brown); border-radius: 26px;
+      box-shadow: 0 5px 0 var(--brown-dark), 0 12px 26px rgba(139, 94, 60, .3);
+    }
+    .pick-result[hidden] { display: none; }
+    .pick-result.pop { animation: pick-pop .45s cubic-bezier(.3, 1.5, .5, 1); }
+    @keyframes pick-pop {
+      from { transform: translateX(-50%) scale(.6); opacity: 0; }
+      to   { transform: translateX(-50%) scale(1); opacity: 1; }
+    }
+    /* 왼쪽 동그란 자리에 고개를 갸웃하는 강아지 */
+    .pick-result-dog {
+      position: absolute; left: 12px; top: 16px;
+      width: 68px; height: 68px; padding: 8px;
+      border-radius: 50%; background: #fff4e6;
+      border: 2px dashed var(--apricot);
+      object-fit: contain;
+    }
+    .pick-result.pop .pick-result-dog { animation: dog-tilt .5s ease-in-out .35s 2; }
+    @keyframes dog-tilt { 25% { transform: rotate(-12deg); } 75% { transform: rotate(10deg); } }
+    /* 강아지 아래 발도장 */
+    .pick-result::after {
+      content: ''; position: absolute; left: 34px; bottom: 14px;
+      width: 30px; height: 30px; opacity: .22; transform: rotate(18deg); pointer-events: none;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg fill='%23e07a4f'%3E%3Cellipse cx='20' cy='26' rx='8' ry='7'/%3E%3Ccircle cx='10.5' cy='15' r='3.6'/%3E%3Ccircle cx='17' cy='10' r='3.6'/%3E%3Ccircle cx='24.5' cy='10' r='3.6'/%3E%3Ccircle cx='30' cy='15.5' r='3.6'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+    }
+    .pick-result-close {
+      position: absolute; top: 8px; right: 10px;
+      border: 0; background: none; cursor: pointer;
+      font-size: 22px; line-height: 1; color: var(--muted); padding: 2px 4px;
+    }
+    .pick-result-close:hover { color: var(--ink); }
+    .pick-result-say { margin: 0 0 3px; font: 400 15px/1.2 var(--round); color: var(--accent-dark); }
+    .pick-result-name {
+      display: flex; align-items: center; gap: 6px;
+      margin: 0 26px 4px 0; font: 400 23px/1.2 var(--round); color: var(--ink);
+    }
+    .pick-result-name .fi { width: 28px; height: 28px; vertical-align: 0; }
+    .pick-result-name span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pick-result-meta { margin: 0; font-size: 12.5px; color: var(--muted); }
+    .pick-result-meta b { color: #f08c00; }
+    .pick-result-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .pick-result-actions button {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px;
+      font: 400 15px/1 var(--round); padding: 9px 10px;
+      border-radius: 999px; cursor: pointer; white-space: nowrap;
+    }
+    .pick-result-actions .fi { width: 18px; height: 18px; }
+    .pick-again { background: #fff; color: var(--brown); border: 2px solid var(--brown); }
+    .pick-again:hover { background: #fff1df; }
+    .pick-ok { background: var(--brown); color: #fff; border: 2px solid var(--brown); }
+    .pick-ok:hover { background: var(--brown-dark); border-color: var(--brown-dark); }
+    @media (prefers-reduced-motion: reduce) {
+      .pick-result.pop, .pick-result.pop .pick-result-dog { animation: none; }
+    }
+
     /* 고르는 중: 마커가 하나씩 반짝이고, 강아지는 킁킁 냄새를 맡아요 */
     .pin.sniff { transform: scale(1.25); border-color: var(--brown); background: #fff1df; }
     .dog.sniffing .dog-all { animation: sniff .2s ease-in-out infinite alternate; }
@@ -591,6 +653,17 @@
         <label class="pick-check"><input type="checkbox" id="pickOpen"> 지금 문 연 곳만</label>
         <button type="submit" class="pick-go"><span class="fi bone" aria-hidden="true"></span> 멍! 골라줘</button>
       </form>
+      <section class="pick-result" id="pickResult" role="dialog" aria-labelledby="pickResultName" aria-live="polite" hidden>
+        <img class="pick-result-dog" id="pickResultDog" alt="">
+        <button type="button" class="pick-result-close" id="pickResultClose" aria-label="닫기">×</button>
+        <p class="pick-result-say">멍! 오늘은 여기 어때요?</p>
+        <h2 class="pick-result-name" id="pickResultName"><span class="fi" id="pickResultIcon" aria-hidden="true"></span><span id="pickResultTitle"></span></h2>
+        <p class="pick-result-meta" id="pickResultMeta"></p>
+        <div class="pick-result-actions">
+          <button type="button" class="pick-again" id="pickAgain"><span class="fi bone" aria-hidden="true"></span> 다시 골라줘</button>
+          <button type="button" class="pick-ok" id="pickOk">좋아요, 갈래요!</button>
+        </div>
+      </section>
       <button type="button" class="pick-btn" id="pickBtn" aria-expanded="false" aria-controls="pickPanel" hidden><span class="fi bone" aria-hidden="true"></span> 강아지가 골라줘</button>
     </div>
 
@@ -1191,6 +1264,7 @@
     document.body.insertAdjacentHTML('afterbegin', GRADIENTS);   // 아이콘·강아지가 같이 쓰는 그러데이션
     $('baseIcon').innerHTML = ic(PIN_ICON);
     document.querySelectorAll('.bone').forEach((b) => { b.innerHTML = ic(BONE_ICON); });
+    $('pickResultDog').src = DOG_ART.head;
 
     (function boot() {
       const key = APP_CONFIG.mapsApiKey || readStoredKey();
@@ -1244,6 +1318,10 @@
       $('pickClose').addEventListener('click', closePickPanel);
       $('pickPanel').addEventListener('keydown', (e) => { if (e.key === 'Escape') closePickPanel(); });
       $('pickPanel').addEventListener('submit', (e) => { e.preventDefault(); pickWithCriteria(); });
+      $('pickAgain').addEventListener('click', () => { hidePickResult(); dogPick(); });
+      $('pickOk').addEventListener('click', hidePickResult);
+      $('pickResultClose').addEventListener('click', hidePickResult);
+      $('pickResult').addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePickResult(); });
       $('openOnly').addEventListener('change', (e) => { state.openOnly = e.target.checked; render(); });
 
       $('cards').addEventListener('click', (e) => {
@@ -1361,6 +1439,7 @@
     function render() {
       const list = visibleItems();
       stopPicking();
+      hidePickResult();
 
       markers.forEach(({ marker }) => { marker.map = null; });
       markers.clear();
@@ -1442,6 +1521,7 @@
       if (!it) return;
       state.activeId = id;
       // 목록을 펼쳐 둔 채 고르면 지도(강아지)가 보이게 중간 높이로 내리고, 고른 카드로 넘겨요
+      if (pan) hidePickResult();
       if (pan && sheetState !== 'peek') setSheet('peek');
       if (pan) scroll = true;
 
@@ -1754,10 +1834,32 @@
         pickTimer = setTimeout(() => {
           stopPicking();
           select(pick.id, { scroll: true });
-          flashStatus(`멍! 오늘은 ${pick.name} 어때요?`);
+          showPickResult(pick);
         }, 450);
       };
       tick();
+    }
+
+    // 고른 결과 카드: 식당 이름·종류·평점·거리와 '다시 골라줘 / 좋아요' 버튼
+    function showPickResult(it) {
+      const kind = KINDS[it.kind];
+      $('pickResultIcon').innerHTML = ic(kind.icon);
+      $('pickResultTitle').textContent = it.name;
+      const bits = [esc(kind.label)];
+      if (it.rating) bits.push(`<b>★ ${it.rating.toFixed(1)}</b>`);
+      bits.push(`도보 약 ${it.walk}분`, fmtDist(it.distance));
+      if (it.open === true) bits.push('영업 중');
+      $('pickResultMeta').innerHTML = bits.join(' · ');
+      const box = $('pickResult');
+      box.hidden = false;
+      box.classList.remove('pop');
+      void box.offsetWidth;                           // 다시 열 때도 통 튀어나오게
+      box.classList.add('pop');
+      $('pickOk').focus({ preventScroll: true });
+    }
+
+    function hidePickResult() {
+      $('pickResult').hidden = true;
     }
 
     function stopPicking() {
