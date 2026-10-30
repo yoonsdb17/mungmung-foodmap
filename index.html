@@ -11,7 +11,10 @@
     /* 그리운 묘은또박체 — 이 파일 옆 fonts 폴더에 있어요 (굵기는 보통 한 가지) */
     @font-face {
       font-family: 'Griun Myoeunddobak';
-      src: url('fonts/Griun_Myoeunddobak-Rg.ttf') format('truetype');
+      /* 컴퓨터에 설치돼 있으면 먼저 써요. 파일을 더블클릭해서 열면(file://) 크롬이
+         옆 폴더의 폰트 파일을 막는데, 설치된 폰트는 그래도 보여요. */
+      src: local('그리운 묘은또박체 Rg'), local('Griun Myoeun ddobak Rg'), local('Griun_Myoeunddobak-Rg'),
+           url('fonts/Griun_Myoeunddobak-Rg.ttf') format('truetype');
       font-weight: 400;
       font-display: swap;
     }
@@ -105,7 +108,7 @@
     .status {
       position: absolute; left: 50%; top: 12px; transform: translateX(-50%);
       background: #fff; padding: 7px 14px; border-radius: 999px;
-      font-size: 13px; font-weight: 600;
+      font-size: 12px; font-weight: 600;
       box-shadow: 0 2px 8px rgba(0,0,0,.15);
       white-space: nowrap; z-index: 1;
     }
@@ -115,7 +118,7 @@
     .panel { border-top: 2px dashed var(--line); background: var(--soft) var(--paws); min-width: 0; }
     .panel-head {
       display: flex; justify-content: space-between; align-items: center; gap: 8px;
-      padding: 10px 16px 0; font-size: 13px; color: var(--muted);
+      padding: 10px 16px 0; font-size: 12px; color: var(--muted);
     }
     .panel-head b { color: var(--ink); }
     .sheet-handle { display: none; }
@@ -160,10 +163,10 @@
       background: rgba(0,0,0,.45); color: #fff; text-decoration: none;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; min-width: 0; flex: 1; }
+    .body { padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 3px; font-size: 12px; min-width: 0; flex: 1; }
     .meta { color: var(--muted); font-size: 12px; }
     .meta .kind { color: var(--ink); font-weight: 700; }
-    .card h3 { margin: 0; font: 400 18px/1.3 var(--round); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card h3 { margin: 0; font: 400 16px/1.3 var(--round); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .rating { color: #f08c00; font-weight: 700; }
     .rating span { color: var(--muted); font-weight: 500; }
     .walk { font-weight: 700; }
@@ -183,10 +186,10 @@
     /* 그림 아이콘 공통 (글자 크기에 맞춰 커져요) */
     .fi { display: inline-block; width: 1.3em; height: 1.3em; vertical-align: -0.32em; flex: none; }
     .fi svg { width: 100%; height: 100%; display: block; overflow: visible; }
-    .chip .fi { width: 20px; height: 20px; vertical-align: -5px; }
+    .chip .fi { width: 18px; height: 18px; vertical-align: -4px; }
     .pin {
       position: relative;
-      width: 40px; height: 40px; border-radius: 50%;
+      width: 36px; height: 36px; border-radius: 50%;
       background: radial-gradient(circle at 35% 28%, #fff 0%, #fff 45%, #f3e7d8 100%);
       border: 2px solid #6b5446;
       display: grid; place-items: center;
@@ -195,7 +198,7 @@
       transform-origin: 50% 100%;
       transition: transform .15s;
     }
-    .pin-icon { width: 28px; height: 28px; pointer-events: none; }
+    .pin-icon { width: 25px; height: 25px; pointer-events: none; }
     .pin-icon svg { width: 100%; height: 100%; display: block; overflow: visible; filter: drop-shadow(0 1px 1px rgba(59, 42, 31, .25)); }
     .pin-num {
       position: absolute; top: -6px; right: -8px;
@@ -225,15 +228,15 @@
     /* 강아지: 식당을 고르면 역에서 식당까지 한 번 걸어가요. 현위치를 켜면 내 위치를 따라다녀요. */
     .dog {
       position: relative;
-      width: 58px; height: 45px;
+      width: 50px; height: 39px;
       pointer-events: none;
       filter: drop-shadow(0 1px 2px rgba(0,0,0,.35));
     }
     .dog svg { width: 100%; height: 100%; display: block; overflow: visible; }
     .dog.left > svg { transform: scaleX(-1); }    /* 그림은 오른쪽을 보고 있어요 */
     /* 점선을 걸을 땐 강아지를 살짝 뒤로 빼서, 도착하면 입이 식당 아이콘 바로 옆에 오게 해요 */
-    .dog.trail { transform: translateX(-40px); }
-    .dog.trail.left { transform: translateX(40px); }
+    .dog.trail { transform: translateX(-34px); }
+    .dog.trail.left { transform: translateX(34px); }
     .dog .dog-all { transform-box: fill-box; transform-origin: 70% 100%; }
     .dog .eye-happy, .dog .blush { display: none; }
 
@@ -299,25 +302,25 @@
     }
     .pick-panel[hidden] { display: none; }
     .pick-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .pick-head b { font: 400 19px/1.3 var(--round); color: var(--brown); }
+    .pick-head b { font: 400 17px/1.3 var(--round); color: var(--brown); }
     .pick-close { border: 0; background: none; font-size: 22px; line-height: 1; color: var(--muted); cursor: pointer; padding: 0 2px; }
     .pick-close:hover { color: var(--ink); }
     .pick-panel fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
-    .pick-panel legend { font: 400 16px/1 var(--round); color: var(--ink); margin-bottom: 7px; padding: 0; }
+    .pick-panel legend { font: 400 15px/1 var(--round); color: var(--ink); margin-bottom: 7px; padding: 0; }
     .opts { display: flex; flex-wrap: wrap; gap: 6px; }
     .opt { position: relative; }
     .opt input { position: absolute; opacity: 0; pointer-events: none; }
     .opt > span {
       display: inline-block; padding: 6px 11px;
       border: 1.5px solid var(--line); border-radius: 999px; background: #fff;
-      font: 15px/1.2 var(--round-b); color: var(--ink); cursor: pointer;
+      font: 14px/1.2 var(--round-b); color: var(--ink); cursor: pointer;
     }
     .opt > span:hover { background: #fff1df; }
     .opt input:checked + span { background: var(--brown); border-color: var(--brown); color: #fff; }
     .opt input:focus-visible + span { outline: 2px solid var(--apricot); outline-offset: 2px; }
     .pick-check { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
     .pick-go {
-      font: 400 20px/1 var(--round); padding: 12px;
+      font: 400 18px/1 var(--round); padding: 11px;
       border: 0; border-radius: 999px; background: var(--brown); color: #fff; cursor: pointer;
     }
     .pick-go:hover { background: var(--brown-dark); }
@@ -338,7 +341,7 @@
     .pick-btn:active { transform: translateX(-50%) scale(.97); }
     .pick-btn:disabled { cursor: progress; }
     .pick-btn[hidden] { display: none; }
-    .pick-btn .fi, .pick-go .fi { width: 24px; height: 24px; vertical-align: middle; }
+    .pick-btn .fi, .pick-go .fi { width: 20px; height: 20px; vertical-align: middle; }
     .pick-btn:disabled .fi { animation: wag .18s ease-in-out infinite alternate; }
 
     /* 고르는 중: 마커가 하나씩 반짝이고, 강아지는 킁킁 냄새를 맡아요 */
@@ -420,103 +423,100 @@
     }
     .key-box button:hover { background: var(--brown-dark); }
 
-    /* ---------- 휴대폰·태블릿 (900px 미만): 꽉 찬 지도 + 끌어올리는 목록(바텀시트) ---------- */
-    @media (max-width: 899px) {
-      html, body { overflow: hidden; overscroll-behavior: none; }
-      .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; height: 100dvh; min-height: 0; }
-      header, .title-row > * { min-width: 0; }      /* 긴 내용 때문에 화면보다 넓어지지 않게 */
+    /* ---------- 모바일 우선 레이아웃: 꽉 찬 지도 + 끌어올리는 목록(바텀시트) ----------
+     * 휴대폰 화면이 기본이고, PC에서는 이 화면을 가운데에 띄워서 보여 줘요 (맨 아래). */
+    html, body { overflow: hidden; overscroll-behavior: none; }
+    .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; height: 100dvh; min-height: 0; }
+    header, .title-row > * { min-width: 0; }      /* 긴 내용 때문에 화면보다 넓어지지 않게 */
 
-      /* 헤더: 한 줄에 로고+제목+검색, 아래로 음식 종류·필터가 가로로 넘겨져요 */
-      header { padding: calc(8px + env(safe-area-inset-top)) 12px 6px; }
-      .title-row { gap: 8px; }
-      h1 { font-size: 21px; gap: 6px; flex: none; }
-      h1 small { display: none; }
-      .logo { width: 32px; height: 32px; }
-      .place-search { flex: 1 1 0; max-width: none; min-width: 0; }
-      .place-search input { font-size: 16px; padding: 7px 12px; }   /* 16px 미만이면 아이폰이 확대해 버려요 */
-      .place-search button { padding: 7px 12px; }
-      .controls {
-        flex: 1 1 100%; flex-wrap: nowrap; gap: 6px;
-        overflow-x: auto; scrollbar-width: none;
-      }
-      .controls::-webkit-scrollbar { display: none; }
-      .controls select, .controls .ghost { flex: none; font-size: 13px; padding: 5px 10px; }
-      .chips { padding-top: 8px; }
-      .chip { padding: 7px 13px; }
-
-      /* 지도는 목록에 가려지지 않는 높이까지만 (내 위치 버튼이 목록 위에 보이게) */
-      #map { bottom: calc(var(--map-bottom, 212px) + env(safe-area-inset-bottom) - 18px); }
-      .locate-btn span { display: none; }
-      .locate-btn { padding: 10px; }
-
-      /* 바텀시트 */
-      .panel {
-        position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
-        height: calc(var(--sheet-h, 212px) + env(safe-area-inset-bottom));
-        padding-bottom: env(safe-area-inset-bottom);
-        border-top: 0; border-radius: 22px 22px 0 0;
-        box-shadow: 0 -6px 20px rgba(139, 94, 60, .22);
-        display: flex; flex-direction: column;
-        transition: height .28s cubic-bezier(.2, .8, .3, 1);
-      }
-      .panel.dragging { transition: none; }
-      .sheet-handle {
-        display: flex; justify-content: center; align-items: center;
-        flex: none; height: 26px; cursor: grab; touch-action: none;
-      }
-      .sheet-handle span { width: 42px; height: 5px; border-radius: 3px; background: #d8c3aa; }
-      .sheet-handle:focus-visible { outline: 2px solid var(--apricot); outline-offset: -4px; }
-      .panel-head { padding: 0 16px; }
-      .cards { flex: 1; min-height: 0; padding: 10px 16px 12px; align-items: flex-start; }
-      .card { flex: 0 0 min(300px, 82vw); flex-direction: row; }
-      .thumb { width: 92px; height: auto; min-height: 118px; }
-      .note { display: none; }
-      /* 끝까지 올리면 세로 목록 */
-      .panel[data-sheet="full"] .cards {
-        flex-direction: column; align-items: stretch;
-        overflow-x: hidden; overflow-y: auto; scroll-snap-type: none;
-      }
-      .panel[data-sheet="full"] .card { flex: none; }
-      .panel[data-sheet="full"] .note { display: block; }
-      .panel[data-sheet="min"] .cards { visibility: hidden; }
-
-      /* 강아지가 골라줘 버튼은 목록 바로 위에 */
-      .pick-btn {
-        position: fixed; z-index: 6;
-        bottom: calc(var(--sheet-h, 212px) + env(safe-area-inset-bottom) + 12px);
-        font-size: 18px; padding: 10px 18px;
-        transition: bottom .28s cubic-bezier(.2, .8, .3, 1), opacity .2s, background .15s;
-      }
-      .app.sheet-dragging .pick-btn { transition: none; }
-      .app[data-sheet="full"] .pick-btn { opacity: 0; pointer-events: none; }
-
-      /* 골라줘 창은 아래에서 올라오는 시트로 */
-      .pick-panel {
-        position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
-        transform: none; width: auto; max-width: none; max-height: 82dvh;
-        border-width: 2px 0 0; border-radius: 22px 22px 0 0;
-        padding-bottom: calc(18px + env(safe-area-inset-bottom));
-        box-shadow: 0 -8px 28px rgba(139, 94, 60, .35);
-      }
-      .opt > span { padding: 8px 12px; }
+    /* 헤더: 한 줄에 로고+제목+검색, 아래로 음식 종류·필터가 가로로 넘겨져요 */
+    header { padding: calc(8px + env(safe-area-inset-top)) 12px 6px; }
+    .title-row { gap: 8px; }
+    h1 { font-size: 19px; gap: 6px; flex: none; }
+    h1 small { display: none; }
+    .logo { width: 28px; height: 28px; }
+    .place-search { flex: 1 1 0; max-width: none; min-width: 0; }
+    .place-search input { font-size: 16px; padding: 7px 12px; }   /* 16px 미만이면 아이폰이 확대해 버려요 */
+    .place-search button { padding: 7px 12px; font-size: 15px; }
+    .controls {
+      flex: 1 1 100%; flex-wrap: nowrap; gap: 6px;
+      overflow-x: auto; scrollbar-width: none;
     }
+    .controls::-webkit-scrollbar { display: none; }
+    .controls select, .controls .ghost { flex: none; font-size: 12px; padding: 4px 9px; }
+    .chips { padding-top: 7px; }
+    .chip { padding: 5px 11px; font-size: 14px; }
 
-    /* ---------- 넓은 화면: 오른쪽 세로 목록 ---------- */
-    @media (min-width: 900px) {
-      .app { grid-template-columns: 1fr 380px; grid-template-rows: auto 1fr; }
-      header { grid-column: 1 / -1; }
-      .panel {
-        border-top: 0; border-left: 1px solid var(--line);
-        display: flex; flex-direction: column; min-height: 0;
+    /* 지도는 목록에 가려지지 않는 높이까지만 (내 위치 버튼이 목록 위에 보이게) */
+    #map { bottom: calc(var(--map-bottom, 200px) + env(safe-area-inset-bottom) - 18px); }
+    .locate-btn span { display: none; }
+    .locate-btn { padding: 10px; }
+
+    /* 바텀시트 */
+    .panel {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+      height: calc(var(--sheet-h, 200px) + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
+      border-top: 0; border-radius: 22px 22px 0 0;
+      box-shadow: 0 -6px 20px rgba(139, 94, 60, .22);
+      display: flex; flex-direction: column;
+      transition: height .28s cubic-bezier(.2, .8, .3, 1);
+    }
+    .panel.dragging { transition: none; }
+    .sheet-handle {
+      display: flex; justify-content: center; align-items: center;
+      flex: none; height: 26px; cursor: grab; touch-action: none;
+    }
+    .sheet-handle span { width: 42px; height: 5px; border-radius: 3px; background: #d8c3aa; }
+    .sheet-handle:focus-visible { outline: 2px solid var(--apricot); outline-offset: -4px; }
+    .panel-head { padding: 0 16px; }
+    .cards { flex: 1; min-height: 0; padding: 8px 16px 10px; align-items: flex-start; overflow-y: hidden; scrollbar-width: thin; }
+    .card { flex: 0 0 min(272px, 78vw); flex-direction: row; }
+    .thumb { width: 80px; height: auto; min-height: 104px; }
+    .note { display: none; }
+    /* 끝까지 올리면 세로 목록 */
+    .panel[data-sheet="full"] .cards {
+      flex-direction: column; align-items: stretch;
+      overflow-x: hidden; overflow-y: auto; scroll-snap-type: none;
+    }
+    .panel[data-sheet="full"] .card { flex: none; }
+    .panel[data-sheet="full"] .note { display: block; }
+    .panel[data-sheet="min"] .cards { visibility: hidden; }
+
+    /* 강아지가 골라줘 버튼은 목록 바로 위에 */
+    .pick-btn {
+      position: fixed; z-index: 6;
+      bottom: calc(var(--sheet-h, 200px) + env(safe-area-inset-bottom) + 12px);
+      font-size: 16px; padding: 9px 16px;
+      transition: bottom .28s cubic-bezier(.2, .8, .3, 1), opacity .2s, background .15s;
+    }
+    .app.sheet-dragging .pick-btn { transition: none; }
+    .app[data-sheet="full"] .pick-btn { opacity: 0; pointer-events: none; }
+
+    /* 골라줘 창은 아래에서 올라오는 시트로 */
+    .pick-panel {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+      transform: none; width: auto; max-width: none; max-height: 82dvh;
+      border-width: 2px 0 0; border-radius: 22px 22px 0 0;
+      padding-bottom: calc(18px + env(safe-area-inset-bottom));
+      box-shadow: 0 -8px 28px rgba(139, 94, 60, .35);
+    }
+    .opt > span { padding: 7px 11px; }
+
+    /* ---------- PC: 휴대폰 화면을 가운데에 띄워서 보여 줘요 ---------- */
+    @media (min-width: 600px) {
+      body { background: #f3e6d6 var(--paws); }
+      .app {
+        max-width: 430px; margin: 0 auto;
+        height: min(100dvh, 900px);
+        margin-top: max(0px, calc((100dvh - 900px) / 2));
+        transform: translateZ(0);                 /* 목록·버튼(고정 위치)이 이 화면 안에 붙게 */
+        background: var(--bg); overflow: hidden;
+        box-shadow: 0 12px 40px rgba(139, 94, 60, .28);
       }
-      .cards {
-        flex-direction: column;
-        overflow-x: hidden; overflow-y: auto;
-        scroll-snap-type: none;
-        flex: 1; min-height: 0;
-      }
-      .card { flex: none; flex-direction: row; }
-      .thumb { width: 110px; height: auto; min-height: 124px; }
+    }
+    @media (min-width: 600px) and (min-height: 920px) {
+      .app { border-radius: 28px; }
     }
   </style>
 </head>
@@ -1455,9 +1455,9 @@
       const it = state.results.find((r) => r.id === id);
       if (!it) return;
       state.activeId = id;
-      // 휴대폰: 목록을 펼쳐 둔 채 고르면 지도(강아지)가 보이게 중간 높이로 내리고, 고른 카드로 넘겨요
-      if (pan && mobileMQ.matches && sheetState !== 'peek') { setSheet('peek'); scroll = true; }
-      if (pan && mobileMQ.matches) scroll = true;
+      // 목록을 펼쳐 둔 채 고르면 지도(강아지)가 보이게 중간 높이로 내리고, 고른 카드로 넘겨요
+      if (pan && sheetState !== 'peek') setSheet('peek');
+      if (pan) scroll = true;
 
       markers.forEach(({ marker, el }, key) => {
         const on = key === id;
@@ -1555,7 +1555,7 @@
       if (!pin) return;
       const el = dog.content;
       stopEating();
-      pin.style.setProperty('--dx', el.classList.contains('left') ? '16px' : '-16px');
+      pin.style.setProperty('--dx', el.classList.contains('left') ? '14px' : '-14px');
       pin.classList.add('eaten');
       el.classList.add('eating');
       eatTimers.push(setTimeout(() => {
@@ -1617,11 +1617,11 @@
     /* ---------- 휴대폰: 끌어올리는 식당 목록(바텀시트) ---------- */
     // 세 높이: min(손잡이와 요약만) / peek(카드 한 줄을 옆으로 넘겨 봐요) / full(세로 목록)
     // 손잡이를 끌어서 놓으면 가까운 높이로 붙고, 톡 누르면 펼치기↔접기.
-    const mobileMQ = window.matchMedia('(max-width: 899px)');
-    const SHEET = { min: 70, peek: 212, fullRatio: .82 };
+    const SHEET = { min: 64, peek: 200, fullRatio: .82 };
     let sheetState = 'peek', sheetH = SHEET.peek;
 
-    const sheetHeights = () => ({ min: SHEET.min, peek: SHEET.peek, full: Math.round(window.innerHeight * SHEET.fullRatio) });
+    // 펼친 높이는 앱 화면 높이 기준 (PC에서는 가운데 휴대폰 화면 높이)
+    const sheetHeights = () => ({ min: SHEET.min, peek: SHEET.peek, full: Math.round(document.querySelector('.app').clientHeight * SHEET.fullRatio) });
 
     function applySheetHeight(h) {
       sheetH = h;
@@ -1632,13 +1632,6 @@
       sheetState = next;
       const app = document.querySelector('.app');
       const panel = document.querySelector('.panel');
-      if (!mobileMQ.matches) {                        // 넓은 화면에선 시트가 아니에요
-        app.style.removeProperty('--sheet-h');
-        app.style.removeProperty('--map-bottom');
-        delete panel.dataset.sheet;
-        delete app.dataset.sheet;
-        return;
-      }
       applySheetHeight(sheetHeights()[next]);
       panel.dataset.sheet = next;
       app.dataset.sheet = next;
@@ -1654,7 +1647,6 @@
       const toggle = () => setSheet(sheetState === 'full' ? 'peek' : 'full');
 
       handle.addEventListener('pointerdown', (e) => {
-        if (!mobileMQ.matches) return;
         startY = e.clientY;
         startH = sheetH;
         moved = false;
@@ -1684,7 +1676,6 @@
       handle.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
       });
-      mobileMQ.addEventListener('change', () => setSheet(sheetState));
       window.addEventListener('resize', () => { if (sheetState === 'full') setSheet('full'); });
       setSheet('peek');
     }
