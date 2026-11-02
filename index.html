@@ -4,6 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#fff8ee">
+  <script>
+    // 첫 화면부터 저장된 테마(없으면 기기 설정)로 칠해요 — 밝게 떴다가 어두워지는 깜빡임 방지
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('mungmungFoodMap.theme'); } catch (e) {}
+      if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.dataset.theme = t;
+      document.querySelector('meta[name="theme-color"]').content = t === 'dark' ? '#1d1713' : '#fff8ee';
+    })();
+  </script>
   <title>멍멍 푸드맵</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 
@@ -30,19 +40,61 @@
       --bg: #fff8ee;
       --soft: #f7ead9;
       --card: #fffdf9;
-      --brown: #8b5e3c;
-      --brown-dark: #6f4a2f;
+      --surface-hi: #fff1df;  /* hover·살구빛 강조 바탕 */
+      --brand: #8b5e3c;       /* 기본 버튼·선택된 칩 바탕 */
+      --brand-hover: #6f4a2f;
+      --brand-deep: #6f4a2f;  /* 스티커 카드 아래 도톰한 그림자 */
+      --on-brand: #ffffff;    /* 버튼 위 글자 */
+      --brand-text: #8b5e3c;  /* 제목·갈색 글자 */
       --apricot: #ffb38a;
       --accent: #e07a4f;
-      --accent-dark: #b85a33;
+      --accent-text: #b85a33;
+      --star: #f08c00;
       --green: #2f9e44;
       --red: #c92a2a;
       --link: #b5562b;
+      --handle: #d8c3aa;
+      --frame-bg: #f3e6d6;    /* PC에서 가운데 화면 바깥 */
+      --pet-card-a: #fffaf3;
+      --pet-card-b: #fff3e3;
+      --trail: #8b5e3c;       /* 지도 위 강아지 발자국 */
+      --shadow-rgb: 139, 94, 60;
+      color-scheme: light;
       /* 제목·버튼·칩·식당 이름: 그리운 묘은또박체 / 긴 글: Pretendard */
       --round: 'Griun Myoeunddobak', Pretendard, sans-serif;
       --round-b: 'Griun Myoeunddobak', Pretendard, sans-serif;
       /* 연한 발바닥 무늬 */
       --paws: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='%238b5e3c' fill-opacity='.07'%3E%3Cg transform='rotate(-20 20 20)'%3E%3Cellipse cx='20' cy='25' rx='6.5' ry='5.5'/%3E%3Ccircle cx='12.5' cy='16.5' r='2.8'/%3E%3Ccircle cx='17.5' cy='12.5' r='2.8'/%3E%3Ccircle cx='23.5' cy='12.5' r='2.8'/%3E%3Ccircle cx='28' cy='17' r='2.8'/%3E%3C/g%3E%3Cg transform='translate(48 48) rotate(18 20 20)'%3E%3Cellipse cx='20' cy='25' rx='6.5' ry='5.5'/%3E%3Ccircle cx='12.5' cy='16.5' r='2.8'/%3E%3Ccircle cx='17.5' cy='12.5' r='2.8'/%3E%3Ccircle cx='23.5' cy='12.5' r='2.8'/%3E%3Ccircle cx='28' cy='17' r='2.8'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    /* 다크 모드: 순검정 대신 따뜻한 코코아 갈색. 다크에선 버튼을 살구빛 바탕 + 짙은 글자로 뒤집어요. */
+    :root[data-theme="dark"] {
+      --ink: #f3e8da;
+      --muted: #b9a692;
+      --line: #4a3b30;
+      --bg: #1d1713;
+      --soft: #271f1a;
+      --card: #30261f;
+      --surface-hi: #3b2f26;
+      --brand: #e9a272;
+      --brand-hover: #f4b78c;
+      --brand-deep: #120d0a;
+      --on-brand: #2a1b11;
+      --brand-text: #f0b98d;
+      --apricot: #d9895f;
+      --accent: #ff9b6e;
+      --accent-text: #ffb58f;
+      --star: #ffc35c;
+      --green: #79d58a;
+      --red: #ff8f8f;
+      --link: #ffb58f;
+      --handle: #5a4a3d;
+      --frame-bg: #120e0b;
+      --pet-card-a: #352a21;
+      --pet-card-b: #3d2f24;
+      --trail: #f0b98d;
+      --shadow-rgb: 0, 0, 0;
+      color-scheme: dark;
+      --paws: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='%23f3e8da' fill-opacity='.05'%3E%3Cg transform='rotate(-20 20 20)'%3E%3Cellipse cx='20' cy='25' rx='6.5' ry='5.5'/%3E%3Ccircle cx='12.5' cy='16.5' r='2.8'/%3E%3Ccircle cx='17.5' cy='12.5' r='2.8'/%3E%3Ccircle cx='23.5' cy='12.5' r='2.8'/%3E%3Ccircle cx='28' cy='17' r='2.8'/%3E%3C/g%3E%3Cg transform='translate(48 48) rotate(18 20 20)'%3E%3Cellipse cx='20' cy='25' rx='6.5' ry='5.5'/%3E%3Ccircle cx='12.5' cy='16.5' r='2.8'/%3E%3Ccircle cx='17.5' cy='12.5' r='2.8'/%3E%3Ccircle cx='23.5' cy='12.5' r='2.8'/%3E%3Ccircle cx='28' cy='17' r='2.8'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     }
     * { box-sizing: border-box; }
     html, body { height: 100%; margin: 0; }
@@ -75,10 +127,10 @@
     }
     h1 {
       display: flex; align-items: center; gap: 10px;
-      margin: 0; font: 400 26px/1.15 var(--round); color: var(--brown);
+      margin: 0; font: 400 26px/1.15 var(--round); color: var(--brand-text);
     }
     h1 small { display: block; font: 500 12px/1.3 Pretendard, sans-serif; color: var(--muted); margin-top: 3px; }
-    .logo { width: 42px; height: 42px; flex: none; filter: drop-shadow(0 1px 2px rgba(139,94,60,.3)); }
+    .logo { width: 42px; height: 42px; flex: none; filter: drop-shadow(0 1px 2px rgba(var(--shadow-rgb), .3)); }
     .logo img { display: block; width: 100%; height: 100%; object-fit: contain; }
     .controls { display: flex; flex-wrap: wrap; gap: 8px; }
     select {
@@ -103,14 +155,14 @@
       background: var(--card); color: var(--ink);
       cursor: pointer;
     }
-    .chip:hover { background: #fff1df; }
-    .chip[aria-pressed="true"] { background: var(--brown); border-color: var(--brown); color: #fff; }
+    .chip:hover { background: var(--surface-hi); }
+    .chip[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: var(--on-brand); }
 
     .map-wrap { position: relative; min-height: 260px; }
-    #map { position: absolute; inset: 0; background: #e5e3df; }
+    #map { position: absolute; inset: 0; background: var(--soft); }
     .status {
       position: absolute; left: 50%; top: 12px; transform: translateX(-50%);
-      background: #fff; padding: 7px 14px; border-radius: 999px;
+      background: var(--card); color: var(--ink); padding: 7px 14px; border-radius: 999px;
       font-size: 12px; font-weight: 600;
       box-shadow: 0 2px 8px rgba(0,0,0,.15);
       white-space: nowrap; z-index: 1;
@@ -139,20 +191,20 @@
       background: var(--card);
       border-radius: 16px;
       border: 2px solid transparent;
-      box-shadow: 0 1px 4px rgba(139,94,60,.14);
+      box-shadow: 0 1px 4px rgba(var(--shadow-rgb), .14);
       overflow: hidden;
       cursor: pointer;
       display: flex; flex-direction: column;
       outline: none;
       transition: box-shadow .15s, border-color .15s;
     }
-    .card:hover { box-shadow: 0 4px 12px rgba(139,94,60,.22); }
+    .card:hover { box-shadow: 0 4px 12px rgba(var(--shadow-rgb), .22); }
     .card:focus-visible { border-color: #4c6ef5; }
     .card.active { border-color: var(--accent); }
     /* 우리 동네 반려견 동반 카드 */
-    .card.pet { border-color: var(--apricot); background: linear-gradient(#fffaf3, #fff3e3); }
+    .card.pet { border-color: var(--apricot); background: linear-gradient(var(--pet-card-a), var(--pet-card-b)); }
     .card.pet.active { border-color: var(--accent); }
-    .pet-tag { color: var(--accent-dark); font-weight: 700; }
+    .pet-tag { color: var(--accent-text); font-weight: 700; }
     .num.paw { background: var(--apricot); padding: 3px; }
     .num.paw svg { width: 100%; height: 100%; display: block; }
     /* 목록 안 구역 이름표 (옆으로 넘길 땐 작은 세로 칸, 펼치면 제목 줄) */
@@ -160,22 +212,22 @@
       flex: 0 0 76px; align-self: stretch; scroll-snap-align: start;
       display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
       padding: 8px 6px; text-align: center; word-break: keep-all;
-      font: 400 14px/1.25 var(--round); color: var(--brown);
-      background: #fff4e6; border: 2px dashed var(--apricot); border-radius: 16px;
+      font: 400 14px/1.25 var(--round); color: var(--brand-text);
+      background: var(--surface-hi); border: 2px dashed var(--apricot); border-radius: 16px;
     }
     .cards-label .fi { width: 22px; height: 22px; }
     .cards-label.plain { background: transparent; border-color: var(--line); color: var(--muted); }
-    .thumb { position: relative; height: 96px; background: #f1e4d3 center / cover no-repeat; flex: none; }
-    .thumb.noimg { display: grid; place-items: center; color: #c4ab92; font-size: 12px; }
+    .thumb { position: relative; height: 96px; background: var(--surface-hi) center / cover no-repeat; flex: none; }
+    .thumb.noimg { display: grid; place-items: center; color: var(--muted); font-size: 12px; }
     .num {
       position: absolute; left: 8px; top: 8px;
       width: 24px; height: 24px; border-radius: 50%;
-      background: #fff; color: var(--ink);
+      background: var(--card); color: var(--ink);
       font-size: 12px; font-weight: 800;
       display: grid; place-items: center;
       box-shadow: 0 1px 3px rgba(0,0,0,.3);
     }
-    .card.active .num { background: var(--accent); color: #fff; }
+    .card.active .num { background: var(--accent); color: var(--on-brand); }
     .credit {
       position: absolute; right: 0; bottom: 0; max-width: 100%;
       font-size: 10px; padding: 2px 6px;
@@ -186,7 +238,7 @@
     .meta { color: var(--muted); font-size: 12px; }
     .meta .kind { color: var(--ink); font-weight: 700; }
     .card h3 { margin: 0; font: 400 16px/1.3 var(--round); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .rating { color: #f08c00; font-weight: 700; }
+    .rating { color: var(--star); font-weight: 700; }
     .rating span { color: var(--muted); font-weight: 500; }
     .walk { font-weight: 700; }
     .walk span { color: var(--muted); font-weight: 500; }
@@ -222,7 +274,7 @@
     .pin-num {
       position: absolute; top: -6px; right: -8px;
       min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px;
-      background: var(--ink); color: #fff;
+      background: #3b2a1f; color: #fff;              /* 핀은 어두운 지도에서도 밝게 고정 */
       font: 800 10px/17px Pretendard, sans-serif; text-align: center;
       box-shadow: 0 0 0 1.5px #fff;
       pointer-events: none;
@@ -318,11 +370,27 @@
     .place-search input:focus { outline: none; border-color: var(--apricot); box-shadow: 0 0 0 3px rgba(255, 179, 138, .35); }
     .place-search button {
       font: 400 16px/1 var(--round); padding: 8px 16px;
-      border: 0; border-radius: 999px; background: var(--brown); color: #fff;
+      border: 0; border-radius: 999px; background: var(--brand); color: var(--on-brand);
       cursor: pointer; white-space: nowrap;
     }
-    .place-search button:hover { background: var(--brown-dark); }
-    .base-label { color: var(--brown); font-weight: 700; }
+    .place-search button:hover { background: var(--brand-hover); }
+    .base-label { color: var(--brand-text); font-weight: 700; }
+
+    /* 라이트/다크 토글 (헤더 검색창 오른쪽): 라이트일 땐 달, 다크일 땐 해 */
+    .theme-toggle {
+      flex: none; width: 34px; height: 34px; padding: 0;
+      display: grid; place-items: center;
+      border: 1.5px solid var(--line); border-radius: 50%;
+      background: var(--card); color: var(--brand-text); cursor: pointer;
+    }
+    .theme-toggle:hover { background: var(--surface-hi); }
+    .theme-toggle:focus-visible { outline: 2px solid var(--apricot); outline-offset: 2px; }
+    .theme-toggle svg { width: 18px; height: 18px; display: block; }
+    .theme-toggle .sun, :root[data-theme="dark"] .theme-toggle .moon { display: none; }
+    :root[data-theme="dark"] .theme-toggle .sun { display: block; }
+
+    /* 지도 캔버스: 테마를 바꾸면 새 캔버스로 갈아 끼워요 */
+    .map-canvas { position: absolute; inset: 0; }
 
     /* 강아지가 골라줘: 기준 고르는 창 */
     .pick-panel {
@@ -330,13 +398,13 @@
       transform: translateX(-50%);
       width: 340px; max-width: calc(100% - 24px); max-height: calc(100% - 110px); overflow-y: auto;
       background: var(--card); border: 2px solid var(--line); border-radius: 20px;
-      box-shadow: 0 8px 24px rgba(139, 94, 60, .3);
+      box-shadow: 0 8px 24px rgba(var(--shadow-rgb), .3);
       padding: 14px 16px 16px;
       display: flex; flex-direction: column; gap: 12px;
     }
     .pick-panel[hidden] { display: none; }
     .pick-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .pick-head b { font: 400 17px/1.3 var(--round); color: var(--brown); }
+    .pick-head b { font: 400 17px/1.3 var(--round); color: var(--brand-text); }
     .pick-close { border: 0; background: none; font-size: 22px; line-height: 1; color: var(--muted); cursor: pointer; padding: 0 2px; }
     .pick-close:hover { color: var(--ink); }
     .pick-panel fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
@@ -346,18 +414,18 @@
     .opt input { position: absolute; opacity: 0; pointer-events: none; }
     .opt > span {
       display: inline-block; padding: 6px 11px;
-      border: 1.5px solid var(--line); border-radius: 999px; background: #fff;
+      border: 1.5px solid var(--line); border-radius: 999px; background: var(--card);
       font: 14px/1.2 var(--round-b); color: var(--ink); cursor: pointer;
     }
-    .opt > span:hover { background: #fff1df; }
-    .opt input:checked + span { background: var(--brown); border-color: var(--brown); color: #fff; }
+    .opt > span:hover { background: var(--surface-hi); }
+    .opt input:checked + span { background: var(--brand); border-color: var(--brand); color: var(--on-brand); }
     .opt input:focus-visible + span { outline: 2px solid var(--apricot); outline-offset: 2px; }
     .pick-check { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
     .pick-go {
       font: 400 18px/1 var(--round); padding: 11px;
-      border: 0; border-radius: 999px; background: var(--brown); color: #fff; cursor: pointer;
+      border: 0; border-radius: 999px; background: var(--brand); color: var(--on-brand); cursor: pointer;
     }
-    .pick-go:hover { background: var(--brown-dark); }
+    .pick-go:hover { background: var(--brand-hover); }
 
     /* 강아지가 골라줘 버튼 (지도 아래 가운데) */
     .pick-btn {
@@ -365,13 +433,13 @@
       transform: translateX(-50%);
       display: flex; align-items: center; gap: 6px;
       font: 400 21px/1 var(--round);
-      padding: 12px 22px; border: 3px solid #fff; border-radius: 999px;
-      background: var(--brown); color: #fff;
-      box-shadow: 0 4px 12px rgba(139,94,60,.45);
+      padding: 12px 22px; border: 3px solid var(--bg); border-radius: 999px;
+      background: var(--brand); color: var(--on-brand);
+      box-shadow: 0 4px 12px rgba(var(--shadow-rgb), .45);
       cursor: pointer; white-space: nowrap;
       transition: transform .15s, background .15s;
     }
-    .pick-btn:hover { background: var(--brown-dark); transform: translateX(-50%) translateY(-2px); }
+    .pick-btn:hover { background: var(--brand-hover); transform: translateX(-50%) translateY(-2px); }
     .pick-btn:active { transform: translateX(-50%) scale(.97); }
     .pick-btn:disabled { cursor: progress; }
     .pick-btn[hidden] { display: none; }
@@ -385,8 +453,8 @@
       transform: translateX(-50%);
       padding: 14px 16px 14px 92px;
       background: var(--card) var(--paws);
-      border: 2.5px solid var(--brown); border-radius: 26px;
-      box-shadow: 0 5px 0 var(--brown-dark), 0 12px 26px rgba(139, 94, 60, .3);
+      border: 2.5px solid var(--brand-text); border-radius: 26px;
+      box-shadow: 0 5px 0 var(--brand-deep), 0 12px 26px rgba(var(--shadow-rgb), .3);
     }
     .pick-result[hidden] { display: none; }
     .pick-result.pop { animation: pick-pop .45s cubic-bezier(.3, 1.5, .5, 1); }
@@ -398,7 +466,7 @@
     .pick-result-dog {
       position: absolute; left: 12px; top: 16px;
       width: 68px; height: 68px; padding: 8px;
-      border-radius: 50%; background: #fff4e6;
+      border-radius: 50%; background: var(--surface-hi);
       border: 2px dashed var(--apricot);
       object-fit: contain;
     }
@@ -416,7 +484,7 @@
       font-size: 22px; line-height: 1; color: var(--muted); padding: 2px 4px;
     }
     .pick-result-close:hover { color: var(--ink); }
-    .pick-result-say { margin: 0 0 3px; font: 400 15px/1.2 var(--round); color: var(--accent-dark); }
+    .pick-result-say { margin: 0 0 3px; font: 400 15px/1.2 var(--round); color: var(--accent-text); }
     .pick-result-name {
       display: flex; align-items: center; gap: 6px;
       margin: 0 26px 4px 0; font: 400 23px/1.2 var(--round); color: var(--ink);
@@ -424,7 +492,7 @@
     .pick-result-name .fi { width: 28px; height: 28px; vertical-align: 0; }
     .pick-result-name span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .pick-result-meta { margin: 0; font-size: 12.5px; color: var(--muted); }
-    .pick-result-meta b { color: #f08c00; }
+    .pick-result-meta b { color: var(--star); }
     .pick-result-actions { display: flex; gap: 8px; margin-top: 12px; }
     .pick-result-actions button {
       flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px;
@@ -432,16 +500,16 @@
       border-radius: 999px; cursor: pointer; white-space: nowrap;
     }
     .pick-result-actions .fi { width: 18px; height: 18px; }
-    .pick-again { background: #fff; color: var(--brown); border: 2px solid var(--brown); }
-    .pick-again:hover { background: #fff1df; }
-    .pick-ok { background: var(--brown); color: #fff; border: 2px solid var(--brown); }
-    .pick-ok:hover { background: var(--brown-dark); border-color: var(--brown-dark); }
+    .pick-again { background: var(--card); color: var(--brand-text); border: 2px solid var(--brand-text); }
+    .pick-again:hover { background: var(--surface-hi); }
+    .pick-ok { background: var(--brand); color: var(--on-brand); border: 2px solid var(--brand); }
+    .pick-ok:hover { background: var(--brand-hover); border-color: var(--brand-hover); }
     @media (prefers-reduced-motion: reduce) {
       .pick-result.pop, .pick-result.pop .pick-result-dog { animation: none; }
     }
 
     /* 고르는 중: 마커가 하나씩 반짝이고, 강아지는 킁킁 냄새를 맡아요 */
-    .pin.sniff { transform: scale(1.25); border-color: var(--brown); background: #fff1df; }
+    .pin.sniff { transform: scale(1.25); border-color: var(--brand); background: #fff1df; }
     .dog.sniffing .dog-all { animation: sniff .2s ease-in-out infinite alternate; }
     .dog.sniffing .tail { animation-duration: .16s; }
     @keyframes sniff { to { transform: rotate(7deg) translateY(1px); } }
@@ -449,8 +517,8 @@
       content: '킁킁';
       position: absolute; top: -18px; left: 52%;
       padding: 3px 7px; border-radius: 10px;
-      background: #fff; border: 1.5px solid var(--line);
-      font: 400 14px/1 var(--round); color: var(--brown); white-space: nowrap;
+      background: var(--card); border: 1.5px solid var(--line);
+      font: 400 14px/1 var(--round); color: var(--brand-text); white-space: nowrap;
     }
     .dog.left.sniffing::after { left: auto; right: 52%; }
 
@@ -466,14 +534,14 @@
     }
     .locate-btn svg { width: 18px; height: 18px; flex: none; }
     .locate-btn:hover { background: var(--soft); }
-    .locate-btn.on { color: var(--brown); }
+    .locate-btn.on { color: var(--brand-text); }
     .locate-btn.busy svg { animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
 
     .station {
       position: relative;
-      background: var(--ink); color: #fff;
+      background: var(--ink); color: var(--bg);
       font: 700 12px/1 Pretendard, sans-serif;
       padding: 7px 10px; border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,.35);
@@ -504,7 +572,7 @@
       box-shadow: 0 10px 30px rgba(0,0,0,.25);
       display: flex; flex-direction: column; gap: 10px;
     }
-    .key-box h2 { margin: 0; font: 400 23px/1.25 var(--round); color: var(--brown); }
+    .key-box h2 { margin: 0; font: 400 23px/1.25 var(--round); color: var(--brand-text); }
     .key-box p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
     .key-box input[type=password] {
       font: inherit; font-size: 14px; padding: 10px 12px;
@@ -515,9 +583,9 @@
     .key-box button {
       font: inherit; font-size: 14px; font-weight: 700;
       padding: 10px; border: 0; border-radius: 999px;
-      background: var(--brown); color: #fff; cursor: pointer;
+      background: var(--brand); color: var(--on-brand); cursor: pointer;
     }
-    .key-box button:hover { background: var(--brown-dark); }
+    .key-box button:hover { background: var(--brand-hover); }
 
     /* ---------- 모바일 우선 레이아웃: 꽉 찬 지도 + 끌어올리는 목록(바텀시트) ----------
      * 휴대폰 화면이 기본이고, PC에서는 이 화면을 가운데에 띄워서 보여 줘요 (맨 아래). */
@@ -554,7 +622,7 @@
       height: calc(var(--sheet-h, 200px) + env(safe-area-inset-bottom));
       padding-bottom: env(safe-area-inset-bottom);
       border-top: 0; border-radius: 22px 22px 0 0;
-      box-shadow: 0 -6px 20px rgba(139, 94, 60, .22);
+      box-shadow: 0 -6px 20px rgba(var(--shadow-rgb), .22);
       display: flex; flex-direction: column;
       transition: height .28s cubic-bezier(.2, .8, .3, 1);
     }
@@ -563,7 +631,7 @@
       display: flex; justify-content: center; align-items: center;
       flex: none; height: 26px; cursor: grab; touch-action: none;
     }
-    .sheet-handle span { width: 42px; height: 5px; border-radius: 3px; background: #d8c3aa; }
+    .sheet-handle span { width: 42px; height: 5px; border-radius: 3px; background: var(--handle); }
     .sheet-handle:focus-visible { outline: 2px solid var(--apricot); outline-offset: -4px; }
     .panel-head { padding: 0 16px; }
     .cards { flex: 1; min-height: 0; padding: 8px 16px 10px; align-items: flex-start; overflow-y: hidden; scrollbar-width: thin; }
@@ -599,20 +667,20 @@
       transform: none; width: auto; max-width: none; max-height: 82dvh;
       border-width: 2px 0 0; border-radius: 22px 22px 0 0;
       padding-bottom: calc(18px + env(safe-area-inset-bottom));
-      box-shadow: 0 -8px 28px rgba(139, 94, 60, .35);
+      box-shadow: 0 -8px 28px rgba(var(--shadow-rgb), .35);
     }
     .opt > span { padding: 7px 11px; }
 
     /* ---------- PC: 휴대폰 화면을 가운데에 띄워서 보여 줘요 ---------- */
     @media (min-width: 600px) {
-      body { background: #f3e6d6 var(--paws); }
+      body { background: var(--frame-bg) var(--paws); }
       .app {
         max-width: 430px; margin: 0 auto;
         height: min(100dvh, 900px);
         margin-top: max(0px, calc((100dvh - 900px) / 2));
         transform: translateZ(0);                 /* 목록·버튼(고정 위치)이 이 화면 안에 붙게 */
         background: var(--bg); overflow: hidden;
-        box-shadow: 0 12px 40px rgba(139, 94, 60, .28);
+        box-shadow: 0 12px 40px rgba(var(--shadow-rgb), .28);
       }
     }
     @media (min-width: 600px) and (min-height: 920px) {
@@ -632,6 +700,10 @@
           <input type="search" id="placeInput" placeholder="동네·역 찾기 (예: 강남역)" aria-label="기준 장소 검색" required>
           <button type="submit">찾기</button>
         </form>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="다크 모드 켜기">
+          <svg class="moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1Z"/></svg>
+          <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+        </button>
         <div class="controls">
           <select id="radius" aria-label="검색 반경">
             <option value="500">반경 500m</option>
@@ -759,6 +831,33 @@
         else localStorage.removeItem(KEY_STORAGE);
       } catch { /* 저장 실패 시 이번 방문에만 사용 */ }
     }
+    /* 라이트/다크 테마 — 처음엔 기기 설정을 따르고, 토글을 누르면 그 선택을 기억해요.
+     * (첫 화면 색은 <head>의 작은 스크립트가 이미 칠해 둬요) */
+    const THEME_STORAGE = 'mungmungFoodMap.theme';
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    function readTheme() {
+      try { const t = localStorage.getItem(THEME_STORAGE); return t === 'light' || t === 'dark' ? t : ''; }
+      catch { return ''; }
+    }
+    function storeTheme(theme) {
+      try { localStorage.setItem(THEME_STORAGE, theme); } catch { /* 저장이 막혀 있으면 이번 방문에만 */ }
+    }
+    const currentTheme = () => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+    const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+    function applyTheme(theme, { persist = false } = {}) {
+      const changed = theme !== currentTheme();
+      document.documentElement.dataset.theme = theme;
+      document.querySelector('meta[name="theme-color"]').content = cssVar('--bg');
+      const btn = $('themeToggle');
+      const label = theme === 'dark' ? '다크 모드 끄기' : '다크 모드 켜기';
+      btn.setAttribute('aria-pressed', String(theme === 'dark'));
+      btn.setAttribute('aria-label', label);
+      btn.title = label;
+      if (persist) storeTheme(theme);
+      if (map && changed) { buildMap(); applyMapColors(); }   // 지도 색은 지도를 새로 만들어야 바뀌어요
+    }
+
     function clearStoredKey() {
       try { sessionStorage.removeItem(KEY_STORAGE); localStorage.removeItem(KEY_STORAGE); } catch {}
     }
@@ -1119,6 +1218,7 @@
     };
 
     let map, Place, AdvancedMarkerElement, radiusCircle, routeLine, baseMarker;
+    let MapClass, ColorSchemeEnum, ControlPositionEnum;
     let dog, dogPos, dogFrame, dogIdleTimer, accuracyCircle, locateBtn, watchId, statusTimer;
     let lastMarkerTap = 0; // 마커를 누른 직후의 지도 클릭은 '바깥 누르기'로 치지 않아요
     let dogTrip = false;   // 강아지가 식당에 가 있는 중 (그동안은 내 위치를 따라가지 않아요)
@@ -1153,7 +1253,7 @@
 
     /* ---------- 초기화 ---------- */
     async function init() {
-      const [{ Map }, placesLib, markerLib, { ControlPosition }] = await Promise.all([
+      const [{ Map }, placesLib, markerLib, { ControlPosition, ColorScheme }] = await Promise.all([
         google.maps.importLibrary('maps'),
         google.maps.importLibrary('places'),
         google.maps.importLibrary('marker'),
@@ -1162,17 +1262,10 @@
       Place = placesLib.Place;
       AdvancedMarkerElement = markerLib.AdvancedMarkerElement;
 
-      map = new Map($('map'), {
-        center: CONFIG.koreaCenter,
-        zoom: 7,
-        maxZoom: 20,
-        mapId: CONFIG.mapId,
-        fullscreenControl: true,
-        mapTypeControl: false,
-        streetViewControl: false,
-        clickableIcons: false,
-        gestureHandling: 'greedy',
-      });
+      MapClass = Map;
+      ColorSchemeEnum = ColorScheme;
+      ControlPositionEnum = ControlPosition;
+      buildMap();
 
       // 기준점 말풍선 (검색한 장소 이름 / 내 위치) — setBase에서 자리를 잡아요
       const st = document.createElement('div');
@@ -1182,28 +1275,12 @@
       // 검색 반경 원
       radiusCircle = new google.maps.Circle({
         radius: state.radius, clickable: false,
-        strokeColor: '#e07a4f', strokeOpacity: 0.5, strokeWeight: 1,
-        fillColor: '#e07a4f', fillOpacity: 0.06,
-      });
-
-      // 지도 빈 곳을 누르면 고른 매장을 풀고 모든 마커를 다시 보여 줘요
-      map.addListener('click', () => {
-        if (Date.now() - lastMarkerTap < 400) return;
-        clearSelection();
+        strokeOpacity: 0.5, strokeWeight: 1, fillOpacity: 0.06,
       });
 
       // 기준점 → 선택한 식당: 강아지 발자국 (왼발·오른발이 번갈아 찍혀요)
-      const paw = (side) => ({
-        path: PAW_PATH, anchor: new google.maps.Point(side * 3.2, 0),
-        fillColor: '#8b5e3c', fillOpacity: 0.55, strokeWeight: 0, scale: 1.5,
-      });
-      routeLine = new google.maps.Polyline({
-        map, zIndex: 5, strokeOpacity: 0,
-        icons: [
-          { icon: paw(1), offset: '10px', repeat: '30px' },
-          { icon: paw(-1), offset: '25px', repeat: '30px' },
-        ],
-      });
+      routeLine = new google.maps.Polyline({ map, zIndex: 5, strokeOpacity: 0 });
+      applyMapColors();
 
       // 강아지 (식당을 고르거나 현위치를 켜면 나타나요) + 내 위치 정확도 원
       const d = document.createElement('div');
@@ -1225,7 +1302,7 @@
         else if (me.pos) { map.panTo(me.pos); setBase(me.pos, '내 위치', true); }
       });
       setLocateState('off');
-      map.controls[ControlPosition.RIGHT_BOTTOM].push(locateBtn);
+      map.controls[ControlPositionEnum.RIGHT_BOTTOM].push(locateBtn);
 
       renderChips();
       bindControls();
@@ -1236,6 +1313,55 @@
       $('summary').textContent = '내 위치를 확인하는 중…';
       startTracking({ rebase: true });
       setTimeout(() => { if (!state.base) useFallbackBase(); }, CONFIG.locateWaitMs);
+    }
+
+    /* ---------- 지도 만들기 ----------
+     * 지도 색(라이트/다크)은 지도를 만들 때만 정할 수 있어요. 그래서 테마를 바꾸면 새 캔버스에
+     * 지도를 다시 만들고, 위치·확대와 보이던 마커·강아지·발자국·원을 그대로 옮겨 붙여요. */
+    function buildMap() {
+      const old = map;
+      const canvas = document.createElement('div');
+      canvas.className = 'map-canvas';
+      $('map').append(canvas);
+      map = new MapClass(canvas, {
+        center: old ? old.getCenter() : CONFIG.koreaCenter,
+        zoom: old ? old.getZoom() : 7,
+        maxZoom: 20,
+        mapId: CONFIG.mapId,
+        colorScheme: currentTheme() === 'dark' ? ColorSchemeEnum.DARK : ColorSchemeEnum.LIGHT,
+        fullscreenControl: true,
+        mapTypeControl: false,
+        streetViewControl: false,
+        clickableIcons: false,
+        gestureHandling: 'greedy',
+      });
+      // 지도 빈 곳을 누르면 고른 매장을 풀고 모든 마커를 다시 보여 줘요
+      map.addListener('click', () => {
+        if (Date.now() - lastMarkerTap < 400) return;
+        clearSelection();
+      });
+      if (!old) return;
+      if (locateBtn) map.controls[ControlPositionEnum.RIGHT_BOTTOM].push(locateBtn);
+      markers.forEach(({ marker }) => { if (marker.map) marker.map = map; });
+      [baseMarker, dog].forEach((m) => { if (m?.map) m.map = map; });
+      [radiusCircle, routeLine, accuracyCircle].forEach((o) => { if (o?.getMap()) o.setMap(map); });
+      old.getDiv().remove();
+    }
+
+    // 테마에 맞는 지도 위 색: 반경 원(포인트 색), 발자국(라이트는 갈색, 다크는 살구빛)
+    function applyMapColors() {
+      const accent = cssVar('--accent'), trail = cssVar('--trail');
+      radiusCircle?.setOptions({ strokeColor: accent, fillColor: accent });
+      const paw = (side) => ({
+        path: PAW_PATH, anchor: new google.maps.Point(side * 3.2, 0),
+        fillColor: trail, fillOpacity: 0.6, strokeWeight: 0, scale: 1.5,
+      });
+      routeLine?.setOptions({
+        icons: [
+          { icon: paw(1), offset: '10px', repeat: '30px' },
+          { icon: paw(-1), offset: '25px', repeat: '30px' },
+        ],
+      });
     }
 
     /* ---------- 기준점 (내 위치 / 검색한 장소) ---------- */
@@ -1318,6 +1444,13 @@
     });
 
     document.body.insertAdjacentHTML('afterbegin', GRADIENTS);   // 아이콘·강아지가 같이 쓰는 그러데이션
+    $('themeToggle').addEventListener('click', () =>
+      applyTheme(currentTheme() === 'dark' ? 'light' : 'dark', { persist: true }));
+    prefersDark.addEventListener('change', (e) => {          // 직접 고른 적 없으면 기기 설정을 계속 따라가요
+      if (!readTheme()) applyTheme(e.matches ? 'dark' : 'light');
+    });
+    applyTheme(currentTheme());                               // 토글 아이콘·라벨만 맞춰요
+
     $('baseIcon').innerHTML = ic(PIN_ICON);
     document.querySelectorAll('.bone').forEach((b) => { b.innerHTML = ic(BONE_ICON); });
     $('pickResultDog').src = DOG_ART.head;
