@@ -4,6 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#fff8ee">
+  <script>
+    // 첫 화면부터 저장된 테마(없으면 기기 설정)로 칠해요 — 밝게 떴다가 어두워지는 깜빡임 방지
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('mungmungFoodMap.theme'); } catch (e) {}
+      if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.dataset.theme = t;
+      document.querySelector('meta[name="theme-color"]').content = t === 'dark' ? '#1d1713' : '#fff8ee';
+    })();
+  </script>
   <title>멍멍 푸드맵</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 
@@ -13,7 +23,10 @@
       font-family: 'Griun Myoeunddobak';
       /* 컴퓨터에 설치돼 있으면 먼저 써요. 파일을 더블클릭해서 열면(file://) 크롬이
          옆 폴더의 폰트 파일을 막는데, 설치된 폰트는 그래도 보여요. */
+      /* 순서대로 시도해요: ① 컴퓨터에 설치된 폰트 ② 공개 레포의 폰트를 jsDelivr로 (어디서 열어도 받아져요)
+         ③ 같은 폴더의 fonts/ (인터넷이 없을 때). 더블클릭(file://)으로 열면 크롬이 ③을 막아서 ②가 필요해요. */
       src: local('그리운 묘은또박체 Rg'), local('Griun Myoeun ddobak Rg'), local('Griun_Myoeunddobak-Rg'),
+           url('https://cdn.jsdelivr.net/gh/yoonsdb17/mungmung-foodmap@main/fonts/Griun_Myoeunddobak-Rg.ttf') format('truetype'),
            url('fonts/Griun_Myoeunddobak-Rg.ttf') format('truetype');
       font-weight: 400;
       font-display: swap;
@@ -27,19 +40,61 @@
       --bg: #fff8ee;
       --soft: #f7ead9;
       --card: #fffdf9;
-      --brown: #8b5e3c;
-      --brown-dark: #6f4a2f;
+      --surface-hi: #fff1df;  /* hover·살구빛 강조 바탕 */
+      --brand: #8b5e3c;       /* 기본 버튼·선택된 칩 바탕 */
+      --brand-hover: #6f4a2f;
+      --brand-deep: #6f4a2f;  /* 스티커 카드 아래 도톰한 그림자 */
+      --on-brand: #ffffff;    /* 버튼 위 글자 */
+      --brand-text: #8b5e3c;  /* 제목·갈색 글자 */
       --apricot: #ffb38a;
       --accent: #e07a4f;
-      --accent-dark: #b85a33;
+      --accent-text: #b85a33;
+      --star: #f08c00;
       --green: #2f9e44;
       --red: #c92a2a;
       --link: #b5562b;
+      --handle: #d8c3aa;
+      --frame-bg: #f3e6d6;    /* PC에서 가운데 화면 바깥 */
+      --pet-card-a: #fffaf3;
+      --pet-card-b: #fff3e3;
+      --trail: #8b5e3c;       /* 지도 위 강아지 발자국 */
+      --shadow-rgb: 139, 94, 60;
+      color-scheme: light;
       /* 제목·버튼·칩·식당 이름: 그리운 묘은또박체 / 긴 글: Pretendard */
       --round: 'Griun Myoeunddobak', Pretendard, sans-serif;
       --round-b: 'Griun Myoeunddobak', Pretendard, sans-serif;
       /* 연한 발바닥 무늬 */
       --paws: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='%238b5e3c' fill-opacity='.07'%3E%3Cg transform='rotate(-20 20 20)'%3E%3Cellipse cx='20' cy='25' rx='6.5' ry='5.5'/%3E%3Ccircle cx='12.5' cy='16.5' r='2.8'/%3E%3Ccircle cx='17.5' cy='12.5' r='2.8'/%3E%3Ccircle cx='23.5' cy='12.5' r='2.8'/%3E%3Ccircle cx='28' cy='17' r='2.8'/%3E%3C/g%3E%3Cg transform='translate(48 48) rotate(18 20 20)'%3E%3Cellipse cx='20' cy='25' rx='6.5' ry='5.5'/%3E%3Ccircle cx='12.5' cy='16.5' r='2.8'/%3E%3Ccircle cx='17.5' cy='12.5' r='2.8'/%3E%3Ccircle cx='23.5' cy='12.5' r='2.8'/%3E%3Ccircle cx='28' cy='17' r='2.8'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    /* 다크 모드: 순검정 대신 따뜻한 코코아 갈색. 다크에선 버튼을 살구빛 바탕 + 짙은 글자로 뒤집어요. */
+    :root[data-theme="dark"] {
+      --ink: #f3e8da;
+      --muted: #b9a692;
+      --line: #4a3b30;
+      --bg: #1d1713;
+      --soft: #271f1a;
+      --card: #30261f;
+      --surface-hi: #3b2f26;
+      --brand: #e9a272;
+      --brand-hover: #f4b78c;
+      --brand-deep: #120d0a;
+      --on-brand: #2a1b11;
+      --brand-text: #f0b98d;
+      --apricot: #d9895f;
+      --accent: #ff9b6e;
+      --accent-text: #ffb58f;
+      --star: #ffc35c;
+      --green: #79d58a;
+      --red: #ff8f8f;
+      --link: #ffb58f;
+      --handle: #5a4a3d;
+      --frame-bg: #120e0b;
+      --pet-card-a: #352a21;
+      --pet-card-b: #3d2f24;
+      --trail: #f0b98d;
+      --shadow-rgb: 0, 0, 0;
+      color-scheme: dark;
+      --paws: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='%23f3e8da' fill-opacity='.05'%3E%3Cg transform='rotate(-20 20 20)'%3E%3Cellipse cx='20' cy='25' rx='6.5' ry='5.5'/%3E%3Ccircle cx='12.5' cy='16.5' r='2.8'/%3E%3Ccircle cx='17.5' cy='12.5' r='2.8'/%3E%3Ccircle cx='23.5' cy='12.5' r='2.8'/%3E%3Ccircle cx='28' cy='17' r='2.8'/%3E%3C/g%3E%3Cg transform='translate(48 48) rotate(18 20 20)'%3E%3Cellipse cx='20' cy='25' rx='6.5' ry='5.5'/%3E%3Ccircle cx='12.5' cy='16.5' r='2.8'/%3E%3Ccircle cx='17.5' cy='12.5' r='2.8'/%3E%3Ccircle cx='23.5' cy='12.5' r='2.8'/%3E%3Ccircle cx='28' cy='17' r='2.8'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     }
     * { box-sizing: border-box; }
     html, body { height: 100%; margin: 0; }
@@ -72,11 +127,11 @@
     }
     h1 {
       display: flex; align-items: center; gap: 10px;
-      margin: 0; font: 400 26px/1.15 var(--round); color: var(--brown);
+      margin: 0; font: 400 26px/1.15 var(--round); color: var(--brand-text);
     }
     h1 small { display: block; font: 500 12px/1.3 Pretendard, sans-serif; color: var(--muted); margin-top: 3px; }
-    .logo { width: 42px; height: 42px; flex: none; filter: drop-shadow(0 1px 2px rgba(139,94,60,.3)); }
-    .logo svg { width: 100%; height: 100%; display: block; }
+    .logo { width: 42px; height: 42px; flex: none; filter: drop-shadow(0 1px 2px rgba(var(--shadow-rgb), .3)); }
+    .logo img { display: block; width: 100%; height: 100%; object-fit: contain; }
     .controls { display: flex; flex-wrap: wrap; gap: 8px; }
     select {
       font: inherit; font-size: 13px;
@@ -100,14 +155,14 @@
       background: var(--card); color: var(--ink);
       cursor: pointer;
     }
-    .chip:hover { background: #fff1df; }
-    .chip[aria-pressed="true"] { background: var(--brown); border-color: var(--brown); color: #fff; }
+    .chip:hover { background: var(--surface-hi); }
+    .chip[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: var(--on-brand); }
 
     .map-wrap { position: relative; min-height: 260px; }
-    #map { position: absolute; inset: 0; background: #e5e3df; }
+    #map { position: absolute; inset: 0; background: var(--soft); }
     .status {
       position: absolute; left: 50%; top: 12px; transform: translateX(-50%);
-      background: #fff; padding: 7px 14px; border-radius: 999px;
+      background: var(--card); color: var(--ink); padding: 7px 14px; border-radius: 999px;
       font-size: 12px; font-weight: 600;
       box-shadow: 0 2px 8px rgba(0,0,0,.15);
       white-space: nowrap; z-index: 1;
@@ -136,27 +191,43 @@
       background: var(--card);
       border-radius: 16px;
       border: 2px solid transparent;
-      box-shadow: 0 1px 4px rgba(139,94,60,.14);
+      box-shadow: 0 1px 4px rgba(var(--shadow-rgb), .14);
       overflow: hidden;
       cursor: pointer;
       display: flex; flex-direction: column;
       outline: none;
       transition: box-shadow .15s, border-color .15s;
     }
-    .card:hover { box-shadow: 0 4px 12px rgba(139,94,60,.22); }
+    .card:hover { box-shadow: 0 4px 12px rgba(var(--shadow-rgb), .22); }
     .card:focus-visible { border-color: #4c6ef5; }
     .card.active { border-color: var(--accent); }
-    .thumb { position: relative; height: 96px; background: #f1e4d3 center / cover no-repeat; flex: none; }
-    .thumb.noimg { display: grid; place-items: center; color: #c4ab92; font-size: 12px; }
+    /* 우리 동네 반려견 동반 카드 */
+    .card.pet { border-color: var(--apricot); background: linear-gradient(var(--pet-card-a), var(--pet-card-b)); }
+    .card.pet.active { border-color: var(--accent); }
+    .pet-tag { color: var(--accent-text); font-weight: 700; }
+    .num.paw { background: var(--apricot); padding: 3px; }
+    .num.paw svg { width: 100%; height: 100%; display: block; }
+    /* 목록 안 구역 이름표 (옆으로 넘길 땐 작은 세로 칸, 펼치면 제목 줄) */
+    .cards-label {
+      flex: 0 0 76px; align-self: stretch; scroll-snap-align: start;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+      padding: 8px 6px; text-align: center; word-break: keep-all;
+      font: 400 14px/1.25 var(--round); color: var(--brand-text);
+      background: var(--surface-hi); border: 2px dashed var(--apricot); border-radius: 16px;
+    }
+    .cards-label .fi { width: 22px; height: 22px; }
+    .cards-label.plain { background: transparent; border-color: var(--line); color: var(--muted); }
+    .thumb { position: relative; height: 96px; background: var(--surface-hi) center / cover no-repeat; flex: none; }
+    .thumb.noimg { display: grid; place-items: center; color: var(--muted); font-size: 12px; }
     .num {
       position: absolute; left: 8px; top: 8px;
       width: 24px; height: 24px; border-radius: 50%;
-      background: #fff; color: var(--ink);
+      background: var(--card); color: var(--ink);
       font-size: 12px; font-weight: 800;
       display: grid; place-items: center;
       box-shadow: 0 1px 3px rgba(0,0,0,.3);
     }
-    .card.active .num { background: var(--accent); color: #fff; }
+    .card.active .num { background: var(--accent); color: var(--on-brand); }
     .credit {
       position: absolute; right: 0; bottom: 0; max-width: 100%;
       font-size: 10px; padding: 2px 6px;
@@ -167,7 +238,7 @@
     .meta { color: var(--muted); font-size: 12px; }
     .meta .kind { color: var(--ink); font-weight: 700; }
     .card h3 { margin: 0; font: 400 16px/1.3 var(--round); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .rating { color: #f08c00; font-weight: 700; }
+    .rating { color: var(--star); font-weight: 700; }
     .rating span { color: var(--muted); font-weight: 500; }
     .walk { font-weight: 700; }
     .walk span { color: var(--muted); font-weight: 500; }
@@ -203,7 +274,7 @@
     .pin-num {
       position: absolute; top: -6px; right: -8px;
       min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px;
-      background: var(--ink); color: #fff;
+      background: #3b2a1f; color: #fff;              /* 핀은 어두운 지도에서도 밝게 고정 */
       font: 800 10px/17px Pretendard, sans-serif; text-align: center;
       box-shadow: 0 0 0 1.5px #fff;
       pointer-events: none;
@@ -215,6 +286,9 @@
       transform: scale(1.3);
     }
     .pin.active .pin-num { background: var(--accent); }
+    .pin.pet { border-color: var(--accent); }
+    .pin.pet .pin-num { background: var(--accent); padding: 2px; }
+    .pin.pet .pin-num svg { width: 13px; height: 13px; display: block; }
     /* 강아지가 아이콘을 먹을 때: 강아지 입 쪽(--dx)으로 빨려 들어가며 사라졌다가, 잠시 뒤 다시 뿅 나타나요 */
     .pin.eaten .pin-icon { animation: eaten .8s ease-in forwards; }
     .pin.refill .pin-icon { animation: refill .45s cubic-bezier(.3, 1.6, .5, 1); }
@@ -232,8 +306,19 @@
       pointer-events: none;
       filter: drop-shadow(0 1px 2px rgba(0,0,0,.35));
     }
-    .dog svg { width: 100%; height: 100%; display: block; overflow: visible; }
-    .dog.left > svg { transform: scaleX(-1); }    /* 그림은 오른쪽을 보고 있어요 */
+    .dog img { position: absolute; display: block; max-width: none; }
+    .dog-flip, .dog-all { position: absolute; inset: 0; }
+    .dog.left > .dog-flip { transform: scaleX(-1); }    /* 그림은 오른쪽을 보고 있어요 */
+    /* Figma 레이어 위치 (강아지 칸 50×39 기준) */
+    .dog-shadow { left: 7.5px; top: 35.7px; }
+    .dog-tail { left: 6.81px; top: 5.96px; }
+    .dog-leg-back-far { left: 15.14px; top: 25px; }
+    .dog-leg-front-far { left: 29.36px; top: 25px; }
+    .dog-body { left: 10.22px; top: 16.44px; }
+    .dog-leg-back-near { left: 11.92px; top: 26.45px; }
+    .dog-leg-front-near { left: 31.4px; top: 25.31px; }
+    .dog-neck { left: 0; top: 0; }
+    .dog-head { left: 25px; top: 2px; }
     /* 점선을 걸을 땐 강아지를 살짝 뒤로 빼서, 도착하면 입이 식당 아이콘 바로 옆에 오게 해요 */
     .dog.trail { transform: translateX(-34px); }
     .dog.trail.left { transform: translateX(34px); }
@@ -253,6 +338,7 @@
       width: 14px; height: 13px;
       animation: float-heart 1.6s ease-out forwards;
     }
+    .heart svg { width: 100%; height: 100%; display: block; overflow: visible; }
     .dog.left .heart { left: 14%; }
     @keyframes float-heart {
       0%   { transform: translate(0, 6px) scale(.3); opacity: 0; }
@@ -284,11 +370,27 @@
     .place-search input:focus { outline: none; border-color: var(--apricot); box-shadow: 0 0 0 3px rgba(255, 179, 138, .35); }
     .place-search button {
       font: 400 16px/1 var(--round); padding: 8px 16px;
-      border: 0; border-radius: 999px; background: var(--brown); color: #fff;
+      border: 0; border-radius: 999px; background: var(--brand); color: var(--on-brand);
       cursor: pointer; white-space: nowrap;
     }
-    .place-search button:hover { background: var(--brown-dark); }
-    .base-label { color: var(--brown); font-weight: 700; }
+    .place-search button:hover { background: var(--brand-hover); }
+    .base-label { color: var(--brand-text); font-weight: 700; }
+
+    /* 라이트/다크 토글 (헤더 검색창 오른쪽): 라이트일 땐 달, 다크일 땐 해 */
+    .theme-toggle {
+      flex: none; width: 34px; height: 34px; padding: 0;
+      display: grid; place-items: center;
+      border: 1.5px solid var(--line); border-radius: 50%;
+      background: var(--card); color: var(--brand-text); cursor: pointer;
+    }
+    .theme-toggle:hover { background: var(--surface-hi); }
+    .theme-toggle:focus-visible { outline: 2px solid var(--apricot); outline-offset: 2px; }
+    .theme-toggle svg { width: 18px; height: 18px; display: block; }
+    .theme-toggle .sun, :root[data-theme="dark"] .theme-toggle .moon { display: none; }
+    :root[data-theme="dark"] .theme-toggle .sun { display: block; }
+
+    /* 지도 캔버스: 테마를 바꾸면 새 캔버스로 갈아 끼워요 */
+    .map-canvas { position: absolute; inset: 0; }
 
     /* 강아지가 골라줘: 기준 고르는 창 */
     .pick-panel {
@@ -296,13 +398,13 @@
       transform: translateX(-50%);
       width: 340px; max-width: calc(100% - 24px); max-height: calc(100% - 110px); overflow-y: auto;
       background: var(--card); border: 2px solid var(--line); border-radius: 20px;
-      box-shadow: 0 8px 24px rgba(139, 94, 60, .3);
+      box-shadow: 0 8px 24px rgba(var(--shadow-rgb), .3);
       padding: 14px 16px 16px;
       display: flex; flex-direction: column; gap: 12px;
     }
     .pick-panel[hidden] { display: none; }
     .pick-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .pick-head b { font: 400 17px/1.3 var(--round); color: var(--brown); }
+    .pick-head b { font: 400 17px/1.3 var(--round); color: var(--brand-text); }
     .pick-close { border: 0; background: none; font-size: 22px; line-height: 1; color: var(--muted); cursor: pointer; padding: 0 2px; }
     .pick-close:hover { color: var(--ink); }
     .pick-panel fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
@@ -312,18 +414,18 @@
     .opt input { position: absolute; opacity: 0; pointer-events: none; }
     .opt > span {
       display: inline-block; padding: 6px 11px;
-      border: 1.5px solid var(--line); border-radius: 999px; background: #fff;
+      border: 1.5px solid var(--line); border-radius: 999px; background: var(--card);
       font: 14px/1.2 var(--round-b); color: var(--ink); cursor: pointer;
     }
-    .opt > span:hover { background: #fff1df; }
-    .opt input:checked + span { background: var(--brown); border-color: var(--brown); color: #fff; }
+    .opt > span:hover { background: var(--surface-hi); }
+    .opt input:checked + span { background: var(--brand); border-color: var(--brand); color: var(--on-brand); }
     .opt input:focus-visible + span { outline: 2px solid var(--apricot); outline-offset: 2px; }
     .pick-check { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
     .pick-go {
       font: 400 18px/1 var(--round); padding: 11px;
-      border: 0; border-radius: 999px; background: var(--brown); color: #fff; cursor: pointer;
+      border: 0; border-radius: 999px; background: var(--brand); color: var(--on-brand); cursor: pointer;
     }
-    .pick-go:hover { background: var(--brown-dark); }
+    .pick-go:hover { background: var(--brand-hover); }
 
     /* 강아지가 골라줘 버튼 (지도 아래 가운데) */
     .pick-btn {
@@ -331,21 +433,83 @@
       transform: translateX(-50%);
       display: flex; align-items: center; gap: 6px;
       font: 400 21px/1 var(--round);
-      padding: 12px 22px; border: 3px solid #fff; border-radius: 999px;
-      background: var(--brown); color: #fff;
-      box-shadow: 0 4px 12px rgba(139,94,60,.45);
+      padding: 12px 22px; border: 3px solid var(--bg); border-radius: 999px;
+      background: var(--brand); color: var(--on-brand);
+      box-shadow: 0 4px 12px rgba(var(--shadow-rgb), .45);
       cursor: pointer; white-space: nowrap;
       transition: transform .15s, background .15s;
     }
-    .pick-btn:hover { background: var(--brown-dark); transform: translateX(-50%) translateY(-2px); }
+    .pick-btn:hover { background: var(--brand-hover); transform: translateX(-50%) translateY(-2px); }
     .pick-btn:active { transform: translateX(-50%) scale(.97); }
     .pick-btn:disabled { cursor: progress; }
     .pick-btn[hidden] { display: none; }
     .pick-btn .fi, .pick-go .fi { width: 20px; height: 20px; vertical-align: middle; }
     .pick-btn:disabled .fi { animation: wag .18s ease-in-out infinite alternate; }
 
+    /* 강아지가 고른 결과 카드: 강아지가 말풍선으로 "여기 어때요?" 하고 알려 줘요 */
+    .pick-result {
+      position: absolute; top: 14px; left: 50%; z-index: 4;
+      width: min(350px, calc(100% - 24px));
+      transform: translateX(-50%);
+      padding: 14px 16px 14px 92px;
+      background: var(--card) var(--paws);
+      border: 2.5px solid var(--brand-text); border-radius: 26px;
+      box-shadow: 0 5px 0 var(--brand-deep), 0 12px 26px rgba(var(--shadow-rgb), .3);
+    }
+    .pick-result[hidden] { display: none; }
+    .pick-result.pop { animation: pick-pop .45s cubic-bezier(.3, 1.5, .5, 1); }
+    @keyframes pick-pop {
+      from { transform: translateX(-50%) scale(.6); opacity: 0; }
+      to   { transform: translateX(-50%) scale(1); opacity: 1; }
+    }
+    /* 왼쪽 동그란 자리에 고개를 갸웃하는 강아지 */
+    .pick-result-dog {
+      position: absolute; left: 12px; top: 16px;
+      width: 68px; height: 68px; padding: 8px;
+      border-radius: 50%; background: var(--surface-hi);
+      border: 2px dashed var(--apricot);
+      object-fit: contain;
+    }
+    .pick-result.pop .pick-result-dog { animation: dog-tilt .5s ease-in-out .35s 2; }
+    @keyframes dog-tilt { 25% { transform: rotate(-12deg); } 75% { transform: rotate(10deg); } }
+    /* 강아지 아래 발도장 */
+    .pick-result::after {
+      content: ''; position: absolute; left: 34px; bottom: 14px;
+      width: 30px; height: 30px; opacity: .22; transform: rotate(18deg); pointer-events: none;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg fill='%23e07a4f'%3E%3Cellipse cx='20' cy='26' rx='8' ry='7'/%3E%3Ccircle cx='10.5' cy='15' r='3.6'/%3E%3Ccircle cx='17' cy='10' r='3.6'/%3E%3Ccircle cx='24.5' cy='10' r='3.6'/%3E%3Ccircle cx='30' cy='15.5' r='3.6'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+    }
+    .pick-result-close {
+      position: absolute; top: 8px; right: 10px;
+      border: 0; background: none; cursor: pointer;
+      font-size: 22px; line-height: 1; color: var(--muted); padding: 2px 4px;
+    }
+    .pick-result-close:hover { color: var(--ink); }
+    .pick-result-say { margin: 0 0 3px; font: 400 15px/1.2 var(--round); color: var(--accent-text); }
+    .pick-result-name {
+      display: flex; align-items: center; gap: 6px;
+      margin: 0 26px 4px 0; font: 400 23px/1.2 var(--round); color: var(--ink);
+    }
+    .pick-result-name .fi { width: 28px; height: 28px; vertical-align: 0; }
+    .pick-result-name span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pick-result-meta { margin: 0; font-size: 12.5px; color: var(--muted); }
+    .pick-result-meta b { color: var(--star); }
+    .pick-result-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .pick-result-actions button {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px;
+      font: 400 15px/1 var(--round); padding: 9px 10px;
+      border-radius: 999px; cursor: pointer; white-space: nowrap;
+    }
+    .pick-result-actions .fi { width: 18px; height: 18px; }
+    .pick-again { background: var(--card); color: var(--brand-text); border: 2px solid var(--brand-text); }
+    .pick-again:hover { background: var(--surface-hi); }
+    .pick-ok { background: var(--brand); color: var(--on-brand); border: 2px solid var(--brand); }
+    .pick-ok:hover { background: var(--brand-hover); border-color: var(--brand-hover); }
+    @media (prefers-reduced-motion: reduce) {
+      .pick-result.pop, .pick-result.pop .pick-result-dog { animation: none; }
+    }
+
     /* 고르는 중: 마커가 하나씩 반짝이고, 강아지는 킁킁 냄새를 맡아요 */
-    .pin.sniff { transform: scale(1.25); border-color: var(--brown); background: #fff1df; }
+    .pin.sniff { transform: scale(1.25); border-color: var(--brand); background: #fff1df; }
     .dog.sniffing .dog-all { animation: sniff .2s ease-in-out infinite alternate; }
     .dog.sniffing .tail { animation-duration: .16s; }
     @keyframes sniff { to { transform: rotate(7deg) translateY(1px); } }
@@ -353,8 +517,8 @@
       content: '킁킁';
       position: absolute; top: -18px; left: 52%;
       padding: 3px 7px; border-radius: 10px;
-      background: #fff; border: 1.5px solid var(--line);
-      font: 400 14px/1 var(--round); color: var(--brown); white-space: nowrap;
+      background: var(--card); border: 1.5px solid var(--line);
+      font: 400 14px/1 var(--round); color: var(--brand-text); white-space: nowrap;
     }
     .dog.left.sniffing::after { left: auto; right: 52%; }
 
@@ -370,14 +534,14 @@
     }
     .locate-btn svg { width: 18px; height: 18px; flex: none; }
     .locate-btn:hover { background: var(--soft); }
-    .locate-btn.on { color: var(--brown); }
+    .locate-btn.on { color: var(--brand-text); }
     .locate-btn.busy svg { animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
 
     .station {
       position: relative;
-      background: var(--ink); color: #fff;
+      background: var(--ink); color: var(--bg);
       font: 700 12px/1 Pretendard, sans-serif;
       padding: 7px 10px; border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,.35);
@@ -408,7 +572,7 @@
       box-shadow: 0 10px 30px rgba(0,0,0,.25);
       display: flex; flex-direction: column; gap: 10px;
     }
-    .key-box h2 { margin: 0; font: 400 23px/1.25 var(--round); color: var(--brown); }
+    .key-box h2 { margin: 0; font: 400 23px/1.25 var(--round); color: var(--brand-text); }
     .key-box p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
     .key-box input[type=password] {
       font: inherit; font-size: 14px; padding: 10px 12px;
@@ -419,9 +583,9 @@
     .key-box button {
       font: inherit; font-size: 14px; font-weight: 700;
       padding: 10px; border: 0; border-radius: 999px;
-      background: var(--brown); color: #fff; cursor: pointer;
+      background: var(--brand); color: var(--on-brand); cursor: pointer;
     }
-    .key-box button:hover { background: var(--brown-dark); }
+    .key-box button:hover { background: var(--brand-hover); }
 
     /* ---------- 모바일 우선 레이아웃: 꽉 찬 지도 + 끌어올리는 목록(바텀시트) ----------
      * 휴대폰 화면이 기본이고, PC에서는 이 화면을 가운데에 띄워서 보여 줘요 (맨 아래). */
@@ -458,7 +622,7 @@
       height: calc(var(--sheet-h, 200px) + env(safe-area-inset-bottom));
       padding-bottom: env(safe-area-inset-bottom);
       border-top: 0; border-radius: 22px 22px 0 0;
-      box-shadow: 0 -6px 20px rgba(139, 94, 60, .22);
+      box-shadow: 0 -6px 20px rgba(var(--shadow-rgb), .22);
       display: flex; flex-direction: column;
       transition: height .28s cubic-bezier(.2, .8, .3, 1);
     }
@@ -467,7 +631,7 @@
       display: flex; justify-content: center; align-items: center;
       flex: none; height: 26px; cursor: grab; touch-action: none;
     }
-    .sheet-handle span { width: 42px; height: 5px; border-radius: 3px; background: #d8c3aa; }
+    .sheet-handle span { width: 42px; height: 5px; border-radius: 3px; background: var(--handle); }
     .sheet-handle:focus-visible { outline: 2px solid var(--apricot); outline-offset: -4px; }
     .panel-head { padding: 0 16px; }
     .cards { flex: 1; min-height: 0; padding: 8px 16px 10px; align-items: flex-start; overflow-y: hidden; scrollbar-width: thin; }
@@ -480,6 +644,10 @@
       overflow-x: hidden; overflow-y: auto; scroll-snap-type: none;
     }
     .panel[data-sheet="full"] .card { flex: none; }
+    .panel[data-sheet="full"] .cards-label {
+      flex: none; flex-direction: row; justify-content: flex-start;
+      padding: 6px 2px 0; background: none; border: 0;
+    }
     .panel[data-sheet="full"] .note { display: block; }
     .panel[data-sheet="min"] .cards { visibility: hidden; }
 
@@ -499,20 +667,20 @@
       transform: none; width: auto; max-width: none; max-height: 82dvh;
       border-width: 2px 0 0; border-radius: 22px 22px 0 0;
       padding-bottom: calc(18px + env(safe-area-inset-bottom));
-      box-shadow: 0 -8px 28px rgba(139, 94, 60, .35);
+      box-shadow: 0 -8px 28px rgba(var(--shadow-rgb), .35);
     }
     .opt > span { padding: 7px 11px; }
 
     /* ---------- PC: 휴대폰 화면을 가운데에 띄워서 보여 줘요 ---------- */
     @media (min-width: 600px) {
-      body { background: #f3e6d6 var(--paws); }
+      body { background: var(--frame-bg) var(--paws); }
       .app {
         max-width: 430px; margin: 0 auto;
         height: min(100dvh, 900px);
         margin-top: max(0px, calc((100dvh - 900px) / 2));
         transform: translateZ(0);                 /* 목록·버튼(고정 위치)이 이 화면 안에 붙게 */
         background: var(--bg); overflow: hidden;
-        box-shadow: 0 12px 40px rgba(139, 94, 60, .28);
+        box-shadow: 0 12px 40px rgba(var(--shadow-rgb), .28);
       }
     }
     @media (min-width: 600px) and (min-height: 920px) {
@@ -525,23 +693,17 @@
     <header>
       <div class="title-row">
         <h1>
-          <span class="logo" aria-hidden="true"><svg viewBox="0 0 32 32">
-            <g fill="#d9cfc2"><circle cx="16" cy="17" r="11.2"/><circle cx="16" cy="6" r="4.6"/></g>
-            <g fill="#fff"><circle cx="16" cy="17" r="10"/><circle cx="16" cy="6" r="3.6"/></g>
-            <ellipse cx="6.6" cy="18.5" rx="3.4" ry="6.6" fill="#f3ece2" stroke="#d9cfc2" stroke-width=".8"/>
-            <ellipse cx="25.4" cy="18.5" rx="3.4" ry="6.6" fill="#f3ece2" stroke="#d9cfc2" stroke-width=".8"/>
-            <circle cx="12.4" cy="16" r="1.5" fill="#3b2a1f"/><circle cx="19.6" cy="16" r="1.5" fill="#3b2a1f"/>
-            <ellipse cx="16" cy="20.3" rx="2" ry="1.5" fill="#3b2a1f"/>
-            <path d="M16 21.6 v1.4 M13.9 22.8 q2.1 1.7 4.2 0" stroke="#3b2a1f" stroke-width="1" fill="none" stroke-linecap="round"/>
-            <path d="M11.4 3 L16 5.2 L11.4 7.4Z M20.6 3 L16 5.2 L20.6 7.4Z" fill="#ff7aa2"/>
-            <circle cx="16" cy="5.2" r="1.2" fill="#e85a85"/>
-          </svg></span>
+          <span class="logo" aria-hidden="true"><img src="data:image/svg+xml;charset=utf-8,%3Csvg preserveAspectRatio=%22none%22 overflow=%22visible%22 style=%22display: block;%22 width=%2228%22 height=%2228%22 viewBox=%220 0 28 28%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg id=%22%26%23235;%26%23167;%26%23144;%26%23237;%26%23139;%26%23176;%26%23236;%26%23166;%26%23136; %26%23194;%26%23183; %26%23235;%26%23176;%26%23152;%26%23236;%26%23167;%26%23157;%26%23236;%26%23157;%26%23180;%26%23235;%26%23138;%26%23148; %26%23235;%26%23136;%26%23136;%26%23234;%26%23179;%26%23188; %26%23236;%26%23155;%26%23131;%26%23235;%26%23138;%26%23148; %26%23236;%26%23150;%26%23188;%26%23234;%26%23181;%26%23180;%22%3E%3Cpath id=%22Vector%22 opacity=%220.14%22 d=%22M14 26.5417C18.8325 26.5417 22.75 26.0193 22.75 25.375C22.75 24.7307 18.8325 24.2083 14 24.2083C9.16751 24.2083 5.25 24.7307 5.25 25.375C5.25 26.0193 9.16751 26.5417 14 26.5417Z%22 fill=%22%23B3A89A%22/%3E%3Cpath id=%22Vector_2%22 d=%22M8.16667 7C5.54167 5.83333 3.5 8.16667 2.91667 11.375C2.33333 13.7083 1.75 17.5 1.75 20.7083C1.75 23.9167 3.79167 25.375 6.70833 24.5C9.33333 23.9167 9.33333 20.4167 9.625 16.625L8.16667 7Z%22 fill=%22url(%23paint0_linear_0_4)%22/%3E%3Cpath id=%22Vector_3%22 d=%22M19.8333 6.70833C22.75 5.83333 24.5 8.45833 25.0833 11.6667C25.9583 15.1667 26.5417 18.375 26.25 21.2917C25.9583 24.2083 23.9167 25.6667 21.2917 24.5C18.9583 23.9167 18.6667 19.8333 18.6667 16.625L19.8333 6.70833Z%22 fill=%22url(%23paint1_linear_0_4)%22/%3E%3Cpath id=%22Vector_4%22 d=%22M4.95833 13.4167C4.375 14.875 4.08333 18.0833 4.375 20.4167M6.125 9.91667C5.25 11.9583 4.95833 14 4.95833 15.4583M23.625 13.7083C24.2083 16.0417 24.5 18.9583 23.9167 21.2917M22.4583 9.91667C23.3333 11.9583 23.625 13.7083 23.625 15.1667%22 stroke-width=%221.7%22 stroke-linecap=%22round%22 stroke=%22white%22 stroke-opacity=%220.65%22/%3E%3Cpath id=%22Vector_5%22 d=%22M9.91667 22.75C11.0833 21.875 16.9167 21.875 18.375 23.0417L17.5 25.0833C15.1667 26.25 12.25 25.6667 10.2083 24.7917L9.91667 22.75Z%22 fill=%22%23BA4860%22/%3E%3Cpath id=%22Vector_6%22 d=%22M10.5 23.9167C12.5417 24.7917 15.1667 24.7917 17.5 24.2083%22 stroke-width=%221.5%22 stroke=%22%23E77B8F%22/%3E%3Cpath id=%22Vector_7%22 d=%22M5.83333 10.7917C5.54167 7.29167 7 5.25 9.33333 4.66667C9.625 3.20833 11.6667 2.33333 13.125 3.20833C14.5833 1.75 16.625 2.91667 17.2083 3.79167C19.25 3.20833 21.2917 4.66667 21.5833 6.41667C23.3333 7.875 23.3333 10.5 22.75 12.5417C24.2083 14 23.9167 15.75 23.3333 16.9167C23.625 18.375 22.75 20.125 21.5833 20.7083C21.5833 22.4583 19.8333 23.9167 18.0833 23.625C16.625 25.0833 14.5833 24.7917 13.7083 24.5C11.9583 25.0833 9.91667 24.5 9.33333 23.625C7.29167 23.625 6.125 22.1667 6.125 20.7083C4.375 19.5417 4.375 17.7917 4.95833 16.3333C3.79167 14.2917 4.66667 12.25 5.83333 10.7917Z%22 fill=%22url(%23paint2_radial_0_4)%22/%3E%3Cpath id=%22Vector_8%22 opacity=%220.8%22 d=%22M8.75 7.29167C10.2083 5.25 11.375 4.95833 12.5417 5.54167M13.125 4.66667C14 3.79167 15.1667 3.79167 16.0417 4.66667M17.2083 5.54167C18.6667 5.25 20.125 6.70833 20.4167 7.875%22 stroke-width=%223%22 stroke-linecap=%22round%22 stroke=%22white%22/%3E%3Cpath id=%22Vector_9%22 opacity=%220.46%22 d=%22M9.625 15.1958C10.8814 15.1958 11.9 14.1381 11.9 12.8333C11.9 11.5286 10.8814 10.4708 9.625 10.4708C8.36855 10.4708 7.35 11.5286 7.35 12.8333C7.35 14.1381 8.36855 15.1958 9.625 15.1958Z%22 fill=%22%23DDD6CB%22/%3E%3Cpath id=%22Vector_10%22 opacity=%220.46%22 d=%22M18.375 15.0208C19.5992 15.0208 20.5917 13.9631 20.5917 12.6583C20.5917 11.3536 19.5992 10.2958 18.375 10.2958C17.1508 10.2958 16.1583 11.3536 16.1583 12.6583C16.1583 13.9631 17.1508 15.0208 18.375 15.0208Z%22 fill=%22%23DDD6CB%22/%3E%3Cpath id=%22Vector_11%22 d=%22M9.77083 14.9625C10.7857 14.9625 11.6083 14.0354 11.6083 12.8917C11.6083 11.748 10.7857 10.8208 9.77083 10.8208C8.75601 10.8208 7.93333 11.748 7.93333 12.8917C7.93333 14.0354 8.75601 14.9625 9.77083 14.9625Z%22 fill=%22url(%23paint3_radial_0_4)%22/%3E%3Cpath id=%22Vector_12%22 d=%22M18.2583 14.7875C19.257 14.7875 20.0667 13.8734 20.0667 12.7458C20.0667 11.6183 19.257 10.7042 18.2583 10.7042C17.2596 10.7042 16.45 11.6183 16.45 12.7458C16.45 13.8734 17.2596 14.7875 18.2583 14.7875Z%22 fill=%22url(%23paint4_radial_0_4)%22/%3E%3Cpath id=%22Vector_13%22 d=%22M9.21667 12.775C9.55494 12.775 9.82917 12.4747 9.82917 12.1042C9.82917 11.7337 9.55494 11.4333 9.21667 11.4333C8.87839 11.4333 8.60417 11.7337 8.60417 12.1042C8.60417 12.4747 8.87839 12.775 9.21667 12.775Z%22 fill=%22white%22/%3E%3Cpath id=%22Vector_14%22 opacity=%220.8%22 d=%22M10.5 14.0438C10.6691 14.0438 10.8062 13.9066 10.8062 13.7375C10.8062 13.5684 10.6691 13.4312 10.5 13.4312C10.3309 13.4312 10.1938 13.5684 10.1938 13.7375C10.1938 13.9066 10.3309 14.0438 10.5 14.0438Z%22 fill=%22white%22/%3E%3Cpath id=%22Vector_15%22 d=%22M17.7042 12.6292C18.0424 12.6292 18.3167 12.3288 18.3167 11.9583C18.3167 11.5878 18.0424 11.2875 17.7042 11.2875C17.3659 11.2875 17.0917 11.5878 17.0917 11.9583C17.0917 12.3288 17.3659 12.6292 17.7042 12.6292Z%22 fill=%22white%22/%3E%3Cpath id=%22Vector_16%22 opacity=%220.8%22 d=%22M18.9583 13.8979C19.1275 13.8979 19.2646 13.7608 19.2646 13.5917C19.2646 13.4225 19.1275 13.2854 18.9583 13.2854C18.7892 13.2854 18.6521 13.4225 18.6521 13.5917C18.6521 13.7608 18.7892 13.8979 18.9583 13.8979Z%22 fill=%22white%22/%3E%3Cpath id=%22Vector_17%22 opacity=%220.5%22 d=%22M7.46667 17.2375C8.35262 17.2375 9.07083 16.898 9.07083 16.4792C9.07083 16.0604 8.35262 15.7208 7.46667 15.7208C6.58071 15.7208 5.8625 16.0604 5.8625 16.4792C5.8625 16.898 6.58071 17.2375 7.46667 17.2375Z%22 fill=%22%23F0B6B9%22/%3E%3Cpath id=%22Vector_18%22 opacity=%220.5%22 d=%22M20.7083 17.0917C21.546 17.0917 22.225 16.7521 22.225 16.3333C22.225 15.9145 21.546 15.575 20.7083 15.575C19.8707 15.575 19.1917 15.9145 19.1917 16.3333C19.1917 16.7521 19.8707 17.0917 20.7083 17.0917Z%22 fill=%22%23F0B6B9%22/%3E%3Cpath id=%22Vector_19%22 d=%22M9.625 18.0833C11.375 17.5 16.625 17.5 18.6667 18.0833C18.6667 20.125 17.2083 22.4583 14.5833 22.4583C11.9583 22.4583 10.2083 21 9.625 18.0833Z%22 fill=%22%234D3534%22/%3E%3Cpath id=%22Vector_20%22 d=%22M14 20.4167C15.1667 19.8333 16.625 20.4167 16.625 21.875L16.9167 23.625C17.7917 24.7917 16.9167 25.6667 15.75 25.375C14.5833 25.0833 13.4167 25.0833 12.8333 25.6667C11.9583 25.375 12.25 24.2083 12.8333 23.3333L13.125 21.5833C13.125 21 13.4167 20.7083 14 20.4167Z%22 fill=%22url(%23paint5_linear_0_4)%22/%3E%3Cpath id=%22Vector_21%22 opacity=%220.65%22 d=%22M14.5833 21.2917L14.4958 23.625%22 stroke-width=%221.15%22 stroke-linecap=%22round%22 stroke=%22%23CA7385%22/%3E%3Cpath id=%22Vector_22%22 d=%22M13.7083 15.1667C11.0833 14.2917 8.16667 15.4583 8.16667 17.5C7.875 19.25 9.91667 20.125 11.6667 19.25C12.8333 19.5417 14 18.9583 14.2917 17.7917C14.875 18.9583 16.0417 19.5417 17.5 18.9583C19.25 19.8333 21 18.6667 20.4167 17.2083C19.8333 14.875 16.3333 14 13.7083 15.1667Z%22 fill=%22url(%23paint6_radial_0_4)%22/%3E%3Cpath id=%22Vector_23%22 d=%22M11.9583 15.75C11.9583 14.5833 16.3333 14.2917 16.625 15.75C16.625 16.9167 15.1667 18.0833 14.2917 18.0833C13.125 17.7917 11.9583 16.9167 11.9583 15.75Z%22 fill=%22url(%23paint7_linear_0_4)%22/%3E%3Cpath id=%22Vector_24%22 opacity=%220.6%22 d=%22M13.7083 15.6333C14.256 15.6333 14.7 15.5027 14.7 15.3417C14.7 15.1806 14.256 15.05 13.7083 15.05C13.1607 15.05 12.7167 15.1806 12.7167 15.3417C12.7167 15.5027 13.1607 15.6333 13.7083 15.6333Z%22 fill=%22%23B4AFAB%22/%3E%3Cpath id=%22Vector_25%22 d=%22M14.2917 17.7917V18.6667%22 stroke-width=%221.1%22 stroke-linecap=%22round%22 stroke=%22%2366514A%22/%3E%3Cpath id=%22Vector_26%22 opacity=%220.8%22 d=%22M8.45833 16.9167C9.33333 16.3333 10.2083 16.0417 11.0833 16.0417M17.2083 16.0417C18.0833 16.0417 18.9583 16.3333 19.5417 16.9167M7.29167 19.25C7.875 20.125 8.45833 20.7083 9.625 20.7083M18.6667 20.7083C19.8333 20.7083 20.4167 20.125 21 19.25%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke=%22white%22/%3E%3C/g%3E%3Cdefs%3E%3ClinearGradient id=%22paint0_linear_0_4%22 x1=%221.75%22 y1=%226.69487%22 x2=%2211.1468%22 y2=%228.74415%22 gradientUnits=%22userSpaceOnUse%22%3E%3Cstop stop-color=%22%23E5DED2%22/%3E%3Cstop offset=%220.42%22 stop-color=%22%23FFFEFB%22/%3E%3Cstop offset=%221%22 stop-color=%22%23DDD5C8%22/%3E%3C/linearGradient%3E%3ClinearGradient id=%22paint1_linear_0_4%22 x1=%2226.3259%22 y1=%226.53808%22 x2=%2217.1508%22 y2=%228.45135%22 gradientUnits=%22userSpaceOnUse%22%3E%3Cstop stop-color=%22%23E1D9CB%22/%3E%3Cstop offset=%220.42%22 stop-color=%22%23FFFEFB%22/%3E%3Cstop offset=%221%22 stop-color=%22%23DDD5C8%22/%3E%3C/linearGradient%3E%3CradialGradient id=%22paint2_radial_0_4%22 cx=%220%22 cy=%220%22 r=%221%22 gradientUnits=%22userSpaceOnUse%22 gradientTransform=%22translate(12.169 8.29412) scale(15.329 17.5551)%22%3E%3Cstop stop-color=%22white%22/%3E%3Cstop offset=%220.57%22 stop-color=%22%23FFFEFB%22/%3E%3Cstop offset=%220.87%22 stop-color=%22%23F1EDE6%22/%3E%3Cstop offset=%221%22 stop-color=%22%23DCD5CC%22/%3E%3C/radialGradient%3E%3CradialGradient id=%22paint3_radial_0_4%22 cx=%220%22 cy=%220%22 r=%221%22 gradientUnits=%22userSpaceOnUse%22 gradientTransform=%22translate(8.96233 11.732) scale(3.3075 3.7275)%22%3E%3Cstop stop-color=%22%2364615D%22/%3E%3Cstop offset=%220.44%22 stop-color=%22%23242422%22/%3E%3Cstop offset=%221%22 stop-color=%22%23111312%22/%3E%3C/radialGradient%3E%3CradialGradient id=%22paint4_radial_0_4%22 cx=%220%22 cy=%220%22 r=%221%22 gradientUnits=%22userSpaceOnUse%22 gradientTransform=%22translate(17.4627 11.6025) scale(3.255 3.675)%22%3E%3Cstop stop-color=%22%2364615D%22/%3E%3Cstop offset=%220.44%22 stop-color=%22%23242422%22/%3E%3Cstop offset=%221%22 stop-color=%22%23111312%22/%3E%3C/radialGradient%3E%3ClinearGradient id=%22paint5_linear_0_4%22 x1=%2212.2811%22 y1=%2220.1931%22 x2=%2215.9613%22 y2=%2225.3559%22 gradientUnits=%22userSpaceOnUse%22%3E%3Cstop stop-color=%22%23D67586%22/%3E%3Cstop offset=%220.7%22 stop-color=%22%23F6A6B6%22/%3E%3Cstop offset=%221%22 stop-color=%22%23E98A9D%22/%3E%3C/linearGradient%3E%3CradialGradient id=%22paint6_radial_0_4%22 cx=%220%22 cy=%220%22 r=%221%22 gradientUnits=%22userSpaceOnUse%22 gradientTransform=%22translate(13.0956 16.0357) scale(9.91395 3.95289)%22%3E%3Cstop stop-color=%22white%22/%3E%3Cstop offset=%220.8%22 stop-color=%22%23FCF9F4%22/%3E%3Cstop offset=%221%22 stop-color=%22%23EAE4DA%22/%3E%3C/radialGradient%3E%3ClinearGradient id=%22paint7_linear_0_4%22 x1=%2211.9583%22 y1=%2214.7626%22 x2=%2213.5892%22 y2=%2218.5825%22 gradientUnits=%22userSpaceOnUse%22%3E%3Cstop stop-color=%22%2366615E%22/%3E%3Cstop offset=%220.5%22 stop-color=%22%232D2B2A%22/%3E%3Cstop offset=%221%22 stop-color=%22%23171919%22/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E" alt="" width="28" height="28"></span>
           <span>멍멍 푸드맵<small><span class="fi" id="baseIcon" aria-hidden="true"></span> <span class="base-label" id="baseLabel">위치 확인 중…</span> 근처 맛집, 못 고르겠으면 강아지한테 맡겨요</small></span>
         </h1>
         <form class="place-search" id="placeForm" role="search" autocomplete="off">
           <input type="search" id="placeInput" placeholder="동네·역 찾기 (예: 강남역)" aria-label="기준 장소 검색" required>
           <button type="submit">찾기</button>
         </form>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="다크 모드 켜기">
+          <svg class="moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1Z"/></svg>
+          <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+        </button>
         <div class="controls">
           <select id="radius" aria-label="검색 반경">
             <option value="500">반경 500m</option>
@@ -586,6 +748,17 @@
         <label class="pick-check"><input type="checkbox" id="pickOpen"> 지금 문 연 곳만</label>
         <button type="submit" class="pick-go"><span class="fi bone" aria-hidden="true"></span> 멍! 골라줘</button>
       </form>
+      <section class="pick-result" id="pickResult" role="dialog" aria-labelledby="pickResultName" aria-live="polite" hidden>
+        <img class="pick-result-dog" id="pickResultDog" alt="">
+        <button type="button" class="pick-result-close" id="pickResultClose" aria-label="닫기">×</button>
+        <p class="pick-result-say">멍! 오늘은 여기 어때요?</p>
+        <h2 class="pick-result-name" id="pickResultName"><span class="fi" id="pickResultIcon" aria-hidden="true"></span><span id="pickResultTitle"></span></h2>
+        <p class="pick-result-meta" id="pickResultMeta"></p>
+        <div class="pick-result-actions">
+          <button type="button" class="pick-again" id="pickAgain"><span class="fi bone" aria-hidden="true"></span> 다시 골라줘</button>
+          <button type="button" class="pick-ok" id="pickOk">좋아요, 갈래요!</button>
+        </div>
+      </section>
       <button type="button" class="pick-btn" id="pickBtn" aria-expanded="false" aria-controls="pickPanel" hidden><span class="fi bone" aria-hidden="true"></span> 강아지가 골라줘</button>
     </div>
 
@@ -658,6 +831,33 @@
         else localStorage.removeItem(KEY_STORAGE);
       } catch { /* 저장 실패 시 이번 방문에만 사용 */ }
     }
+    /* 라이트/다크 테마 — 처음엔 기기 설정을 따르고, 토글을 누르면 그 선택을 기억해요.
+     * (첫 화면 색은 <head>의 작은 스크립트가 이미 칠해 둬요) */
+    const THEME_STORAGE = 'mungmungFoodMap.theme';
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    function readTheme() {
+      try { const t = localStorage.getItem(THEME_STORAGE); return t === 'light' || t === 'dark' ? t : ''; }
+      catch { return ''; }
+    }
+    function storeTheme(theme) {
+      try { localStorage.setItem(THEME_STORAGE, theme); } catch { /* 저장이 막혀 있으면 이번 방문에만 */ }
+    }
+    const currentTheme = () => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+    const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+    function applyTheme(theme, { persist = false } = {}) {
+      const changed = theme !== currentTheme();
+      document.documentElement.dataset.theme = theme;
+      document.querySelector('meta[name="theme-color"]').content = cssVar('--bg');
+      const btn = $('themeToggle');
+      const label = theme === 'dark' ? '다크 모드 끄기' : '다크 모드 켜기';
+      btn.setAttribute('aria-pressed', String(theme === 'dark'));
+      btn.setAttribute('aria-label', label);
+      btn.title = label;
+      if (persist) storeTheme(theme);
+      if (map && changed) { buildMap(); applyMapColors(); }   // 지도 색은 지도를 새로 만들어야 바뀌어요
+    }
+
     function clearStoredKey() {
       try { sessionStorage.removeItem(KEY_STORAGE); localStorage.removeItem(KEY_STORAGE); } catch {}
     }
@@ -850,6 +1050,10 @@
         <path d="M16 29 Q7 18.5 7 12.5 A9 9 0 0 1 25 12.5 Q25 18.5 16 29 Z" fill="url(#g-pin)"/>
         <circle cx="16" cy="12.5" r="3.4" fill="#fff"/>
         ${shine(12.3, 8.6, 1.8, 1, -35, .6)}`;
+    // 발바닥 (반려견 동반 표시)
+    const PAW_ICON = `
+        <g fill="url(#g-pin)"><ellipse cx="16" cy="20.5" rx="7" ry="6"/><circle cx="8.3" cy="12.5" r="2.9"/><circle cx="12.8" cy="7.6" r="2.9"/><circle cx="19.2" cy="7.6" r="2.9"/><circle cx="23.7" cy="12.5" r="2.9"/></g>
+        ${shine(13.5, 18, 2.4, 1.2, -20, .55)}`;
     // 그림 조각을 완성된 SVG로 (바닥에 은은한 그림자를 깔아요)
     const ic = (inner) => `<svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="28.4" rx="11" ry="2.4" fill="url(#g-shadow)"/>${inner}</svg>`;
 
@@ -940,6 +1144,12 @@
       'googleMapsURI', 'photos',
     ];
 
+    // 우리 동네(구) 반려견 동반 장소: 검색어와, 이름으로 알아보는 낱말
+    // 구글의 '반려견 동반 가능(allowsDogs)' 정보를 받으면 그 검색은 요금 단계가 올라가서,
+    // 동네가 바뀔 때만 한 번 검색하고 결과를 저장해 다시 써요.
+    const PET = { query: '애견동반', words: /애견|반려견|반려동물|펫|도그|강아지|댕댕/, max: 6, biasM: 6000 };
+    const PET_FIELDS = [...FIELDS, 'allowsDogs'];
+
     const WALK_M_PER_MIN = 67;   // 약 4km/h
     const DETOUR = 1.3;          // 직선거리 → 실제 걷는 거리 보정
 
@@ -947,52 +1157,42 @@
     const DOG_WALK = { msPerM: 15, minMs: 4000, maxMs: 12000 };
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    // 강아지 그림: 흰 말티즈 (오른쪽을 보고 있음) — 3D 느낌
-    // 몸통은 같은 모양을 연회색으로 한 번(테두리), 둥근 그러데이션 털로 한 번 겹쳐 그려요.
-    // 머리를 크게, 눈을 크고 반짝이게 해서 더 귀엽게.
-    const DOG_OUTLINE = '#d3cbc0';
-    const DOG_BODY = `
-        <ellipse cx="17.5" cy="18" rx="10" ry="6.2"/>
-        <circle cx="10" cy="21.6" r="2.6"/><circle cx="14.3" cy="22.6" r="2.6"/>
-        <circle cx="18.8" cy="22.6" r="2.6"/><circle cx="23.2" cy="22" r="2.6"/>
-        <circle cx="25.5" cy="16.5" r="4"/>
-        <circle cx="29.5" cy="10.5" r="7.2"/>
-        <circle cx="28.6" cy="3.6" r="2.8"/>
-        <ellipse cx="35.4" cy="12.6" rx="3.5" ry="2.9"/>`;
-    const dogLeg = (cls, x) => `<g class="dleg ${cls}">
-          <line x1="${x}" y1="20.5" x2="${x}" y2="28.4" stroke="${DOG_OUTLINE}" stroke-width="5.4" stroke-linecap="round"/>
-          <line x1="${x}" y1="20.5" x2="${x}" y2="28.4" stroke="#f7f3ee" stroke-width="3.6" stroke-linecap="round"/>
-          <ellipse cx="${x}" cy="28.4" rx="1.8" ry=".9" fill="#fff"/>
-        </g>`;
-    const DOG_SVG = `<svg viewBox="0 0 40 30" aria-hidden="true"><g class="dog-all">
-        <ellipse cx="18" cy="29.2" rx="13" ry="1.6" fill="url(#g-shadow)"/>
-        <g class="tail">
-          <path d="M10 15.5 C5 14.5 4 8.5 8.5 7" fill="none" stroke="${DOG_OUTLINE}" stroke-width="6.2" stroke-linecap="round"/>
-          <path d="M10 15.5 C5 14.5 4 8.5 8.5 7" fill="none" stroke="#fbf8f4" stroke-width="4.4" stroke-linecap="round"/>
-          <circle cx="8.5" cy="7" r="2.8" fill="url(#g-dogfur)" stroke="${DOG_OUTLINE}" stroke-width="1"/>
-        </g>
-        ${dogLeg('a', 11)}${dogLeg('b', 14.5)}${dogLeg('b', 21)}${dogLeg('a', 24.5)}
-        <g fill="${DOG_OUTLINE}" stroke="${DOG_OUTLINE}" stroke-width="2">${DOG_BODY}</g>
-        <g fill="url(#g-dogfur)">${DOG_BODY}</g>
-        <ellipse cx="17" cy="21.3" rx="8" ry="1.8" fill="#e3dbd0" opacity=".55"/>
-        <ellipse cx="16" cy="14.2" rx="5" ry="1.6" fill="#fff" opacity=".95"/>
-        <ellipse cx="27.6" cy="6.4" rx="2.6" ry="1.3" fill="#fff" opacity=".95"/>
-        <ellipse cx="25.8" cy="12.6" rx="2.9" ry="5.6" fill="url(#g-ear)" stroke="#d8c8b3" stroke-width=".8" transform="rotate(10 25.8 12.6)"/>
-        <g class="eye-open">
-          <ellipse cx="31.6" cy="9.8" rx="1.75" ry="1.95" fill="#2a1c14"/>
-          <circle cx="32.2" cy="9.1" r=".65" fill="#fff"/><circle cx="31.1" cy="10.6" r=".3" fill="#fff"/>
-        </g>
-        <path class="eye-happy" d="M30.1 10.4 Q31.6 8.1 33.1 10.4" fill="none" stroke="#2a1c14" stroke-width="1.1" stroke-linecap="round"/>
-        <ellipse cx="38.1" cy="11.8" rx="1.5" ry="1.25" fill="url(#g-dognose)"/>
-        <ellipse cx="37.7" cy="11.4" rx=".45" ry=".3" fill="#fff" opacity=".8"/>
-        <path d="M36.4 14.2 Q35.6 15.6 34.4 15.2" fill="none" stroke="#8a6e60" stroke-width=".7" stroke-linecap="round"/>
-        <ellipse cx="35.6" cy="16" rx="1.15" ry=".95" fill="#f48aa0"/>
-        <ellipse cx="33" cy="13.4" rx="1.5" ry=".85" fill="#ffb3c6" opacity=".7"/>
-        <ellipse class="blush" cx="33" cy="13.4" rx="1.6" ry=".9" fill="#ff8fab"/>
-        <path d="M25.6 1.6 L28.6 3.4 L25.6 5.2Z M31.6 1.6 L28.6 3.4 L31.6 5.2Z" fill="url(#g-bow)"/>
-        <circle cx="28.6" cy="3.4" r="1" fill="#e04a7a"/>
-        ${'<ellipse cx="26.6" cy="2.7" rx=".7" ry=".35" fill="#fff" opacity=".7"/>'}
-      </g></svg>`;
+    // 지도 위 발자국 모양 (발가락이 가는 방향을 봐요). 발바닥 + 발가락 4개.
+    const circlePath = (cx, cy, rx, ry = rx) =>
+      `M${cx - rx},${cy} a${rx},${ry} 0 1,0 ${rx * 2},0 a${rx},${ry} 0 1,0 ${-rx * 2},0`;
+    const PAW_PATH = [
+      circlePath(0, 2, 2.3, 1.9),
+      circlePath(-2.5, -1.4, 0.95), circlePath(-0.95, -3, 0.95),
+      circlePath(0.95, -3, 0.95), circlePath(2.5, -1.4, 0.95),
+    ].join(' ');
+
+    // Figma에서 받은 강아지 그림 조각 (원본 파일: assets/dog/*.svg).
+    // 파일을 따로 불러오면 더블클릭으로 열거나 다른 곳(Figma 등)에서 열 때 그림이 깨져서(엑박),
+    // 같은 내용을 페이지 안에 넣어 뒀어요. 그림을 바꾸면 이 값도 같이 바꿔 주세요.
+    const DOG_ART = {
+      'shadow': 'data:image/svg+xml;charset=utf-8,%3Csvg preserveAspectRatio=%22none%22 overflow=%22visible%22 style=%22display: block;%22 width=%2236%22 height=%223%22 viewBox=%220 0 36 3%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg id=%22%26%23235;%26%23176;%26%23148;%26%23235;%26%23139;%26%23165; %26%23234;%26%23183;%26%23184;%26%23235;%26%23166;%26%23188;%26%23236;%26%23158;%26%23144;%22%3E%3Cpath id=%22Vector%22 opacity=%220.2%22 d=%22M18 3C27.9411 3 36 2.32843 36 1.5C36 0.671573 27.9411 0 18 0C8.05887 0 0 0.671573 0 1.5C0 2.32843 8.05887 3 18 3Z%22 fill=%22%23A89986%22/%3E%3C/g%3E%3C/svg%3E',
+      'tail': 'data:image/svg+xml;charset=utf-8,%3Csvg preserveAspectRatio=%22none%22 overflow=%22visible%22 style=%22display: block;%22 width=%228.1916%22 height=%2217.0405%22 viewBox=%220 0 8.1916 17.0405%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg id=%22%26%23234;%26%23188;%26%23172;%26%23235;%26%23166;%26%23172;%22%3E%3Cpath id=%22Vector%22 d=%22M7.1916 17.0405C2.1916 17.0405 -0.808398 13.0405 0.191602 9.04052C0.191602 7.04052 2.1916 5.04052 2.1916 3.04052C1.1916 0.0405183 4.1916 -0.959482 6.1916 1.04052C9.1916 3.04052 8.1916 6.04052 5.1916 9.04052C3.1916 12.0405 5.1916 13.0405 8.1916 12.0405L7.1916 17.0405Z%22 fill=%22url(%23paint0_radial_0_17)%22/%3E%3Cpath id=%22Vector_2%22 d=%22M3.1916 3.04052C4.1916 2.04052 5.1916 3.04052 5.1916 4.04052C5.1916 6.04052 2.1916 8.04052 2.1916 10.0405%22 stroke-linecap=%22round%22 stroke=%22white%22/%3E%3C/g%3E%3Cdefs%3E%3CradialGradient id=%22paint0_radial_0_17%22 cx=%220%22 cy=%220%22 r=%221%22 gradientUnits=%22userSpaceOnUse%22 gradientTransform=%22translate(2.86706 2.55608) scale(7.78202 16.1885)%22%3E%3Cstop stop-color=%22white%22/%3E%3Cstop offset=%220.6%22 stop-color=%22%23FFFEFB%22/%3E%3Cstop offset=%221%22 stop-color=%22%23DFD8CE%22/%3E%3C/radialGradient%3E%3C/defs%3E%3C/svg%3E',
+      'leg-back-far': 'data:image/svg+xml;charset=utf-8,%3Csvg preserveAspectRatio=%22none%22 overflow=%22visible%22 style=%22display: block;%22 width=%225.92351%22 height=%2212.4%22 viewBox=%220 0 5.92351 12.4%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg id=%22%26%23235;%26%23146;%26%23183;%26%23235;%26%23139;%26%23164;%26%23235;%26%23166;%26%23172; %26%23194;%26%23183; %26%23235;%26%23168;%26%23188; %26%23236;%26%23170;%26%23189;%22%3E%3Cpath id=%22Vector%22 d=%22M1.86667 0C-0.133333 0 -0.333333 2 0.366667 5L1.46667 9.8C0.366667 10 0.166667 12 2.06667 12.4H5.36667C6.36667 12 5.86667 10.2 5.06667 9.6L4.56667 3C4.36667 1 3.66667 0 1.86667 0Z%22 fill=%22url(%23paint0_linear_0_46)%22/%3E%3C/g%3E%3Cdefs%3E%3ClinearGradient id=%22paint0_linear_0_46%22 x1=%220%22 y1=%220%22 x2=%227.44441%22 y2=%222.13373%22 gradientUnits=%22userSpaceOnUse%22%3E%3Cstop stop-color=%22%23DCD5CB%22/%3E%3Cstop offset=%220.6%22 stop-color=%22%23EEE9E1%22/%3E%3Cstop offset=%221%22 stop-color=%22%23D3CBBF%22/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E',
+      'leg-front-far': 'data:image/svg+xml;charset=utf-8,%3Csvg preserveAspectRatio=%22none%22 overflow=%22visible%22 style=%22display: block;%22 width=%225.76342%22 height=%2212%22 viewBox=%220 0 5.76342 12%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg id=%22%26%23236;%26%23149;%26%23158;%26%23235;%26%23139;%26%23164;%26%23235;%26%23166;%26%23172; %26%23194;%26%23183; %26%23235;%26%23168;%26%23188; %26%23236;%26%23170;%26%23189;%22%3E%3Cpath id=%22Vector%22 d=%22M1.64721 0C-0.15279 0 -0.352791 2 0.447209 4.5L1.44721 9.5C0.147209 10.2 0.447211 11.9 1.84721 12H4.64721C6.14721 12 5.94721 10.4 5.14721 9.5L4.34721 3C4.14721 1 3.34721 0 1.64721 0Z%22 fill=%22url(%23paint0_linear_0_20)%22/%3E%3C/g%3E%3Cdefs%3E%3ClinearGradient id=%22paint0_linear_0_20%22 x1=%221.25576e-09%22 y1=%220%22 x2=%227.23725%22 y2=%222.08556%22 gradientUnits=%22userSpaceOnUse%22%3E%3Cstop stop-color=%22%23DCD5CB%22/%3E%3Cstop offset=%220.6%22 stop-color=%22%23EEE9E1%22/%3E%3Cstop offset=%221%22 stop-color=%22%23D3CBBF%22/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E',
+      'body': 'data:image/svg+xml;charset=utf-8,%3Csvg preserveAspectRatio=%22none%22 overflow=%22visible%22 style=%22display: block;%22 width=%2228.3009%22 height=%2216.428%22 viewBox=%220 0 28.3009 16.428%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg id=%22%26%23235;%26%23170;%26%23184;%26%23237;%26%23134;%26%23181;%22%3E%3Cpath id=%22Vector%22 d=%22M1.78561 3.56302C2.28561 0.863023 6.28561 -0.436977 9.78561 0.563023C12.7856 -0.636977 15.7856 0.263023 17.7856 1.56302C21.7856 0.863023 25.5856 3.06302 26.7856 6.26302C29.7856 8.56302 27.7856 12.563 25.4856 13.563C22.7856 16.763 18.2856 15.563 15.7856 15.563C11.7856 17.563 7.98561 15.563 6.78561 14.863C3.28561 15.863 0.585605 12.763 1.18561 10.363C-0.914394 8.06302 0.0856058 5.06302 1.78561 3.56302Z%22 fill=%22url(%23paint0_radial_0_10)%22/%3E%3Cpath id=%22Vector_2%22 d=%22M4.78561 3.56302C7.78561 2.06302 9.78561 2.86302 11.7856 3.56302M14.7856 2.56302C16.7856 2.16302 19.2856 3.06302 20.2856 4.26302%22 stroke-width=%221.3%22 stroke-linecap=%22round%22 stroke=%22white%22/%3E%3Cpath id=%22Vector_3%22 opacity=%220.6%22 d=%22M5.78561 11.563C9.78561 13.563 15.7856 14.063 18.7856 13.063%22 stroke-width=%220.7%22 stroke-linecap=%22round%22 stroke=%22%23E9E2D8%22/%3E%3C/g%3E%3Cdefs%3E%3CradialGradient id=%22paint0_radial_0_10%22 cx=%220%22 cy=%220%22 r=%221%22 gradientUnits=%22userSpaceOnUse%22 gradientTransform=%22translate(9.90532 2.4642) scale(26.8859 15.6066)%22%3E%3Cstop stop-color=%22white%22/%3E%3Cstop offset=%220.6%22 stop-color=%22%23FFFEFB%22/%3E%3Cstop offset=%221%22 stop-color=%22%23DFD8CE%22/%3E%3C/radialGradient%3E%3C/defs%3E%3C/svg%3E',
+      'leg-back-near': 'data:image/svg+xml;charset=utf-8,%3Csvg preserveAspectRatio=%22none%22 overflow=%22visible%22 style=%22display: block;%22 width=%226.18767%22 height=%2211.3456%22 viewBox=%220 0 6.18767 11.3456%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg id=%22%26%23235;%26%23146;%26%23183;%26%23235;%26%23139;%26%23164;%26%23235;%26%23166;%26%23172; %26%23194;%26%23183; %26%23234;%26%23176;%26%23128;%26%23234;%26%23185;%26%23140;%26%23236;%26%23154;%26%23180; %26%23236;%26%23170;%26%23189;%22%3E%3Cpath id=%22Vector%22 d=%22M1.28444 0.345639C-0.115559 1.54564 0.284442 4.74564 0.884442 7.34564V8.64564C-0.415558 9.14564 -0.415559 11.1456 1.78444 11.3456H4.88444C6.38444 11.1456 6.68444 9.34564 5.28444 8.54564L5.08444 3.94564C5.58444 1.24564 3.58444 -0.854361 1.28444 0.345639Z%22 fill=%22url(%23paint0_linear_0_14)%22/%3E%3Cg id=%22Vector_2%22%3E%3Cpath d=%22M1.58444 9.94564V10.7456ZM3.28444 9.94564V10.8456Z%22 fill=%22black%22/%3E%3Cpath d=%22M1.58444 9.94564V10.7456M3.28444 9.94564V10.8456%22 stroke-width=%220.45%22 stroke-linecap=%22round%22 stroke=%22%23E4DDD3%22/%3E%3C/g%3E%3C/g%3E%3Cdefs%3E%3ClinearGradient id=%22paint0_linear_0_14%22 x1=%220%22 y1=%224.48239e-09%22 x2=%228.66001%22 y2=%225.90374%22 gradientUnits=%22userSpaceOnUse%22%3E%3Cstop stop-color=%22%23FEFDFA%22/%3E%3Cstop offset=%220.6%22 stop-color=%22white%22/%3E%3Cstop offset=%221%22 stop-color=%22%23E4DDD3%22/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E',
+      'leg-front-near': 'data:image/svg+xml;charset=utf-8,%3Csvg preserveAspectRatio=%22none%22 overflow=%22visible%22 style=%22display: block;%22 width=%226.23054%22 height=%2212.4918%22 viewBox=%220 0 6.23054 12.4918%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg id=%22%26%23236;%26%23149;%26%23158;%26%23235;%26%23139;%26%23164;%26%23235;%26%23166;%26%23172; %26%23194;%26%23183; %26%23234;%26%23176;%26%23128;%26%23234;%26%23185;%26%23140;%26%23236;%26%23154;%26%23180; %26%23236;%26%23170;%26%23189;%22%3E%3Cpath id=%22Vector%22 d=%22M2.40153 0.0918007C0.201526 0.691801 0.101527 3.4918 0.601527 6.1918L0.901526 9.6918C-0.398474 9.9918 -0.398473 12.1918 1.60153 12.4918H4.70153C6.40153 12.2918 6.80153 10.3918 5.30153 9.6918L5.60153 3.4918C5.90153 1.1918 4.60153 -0.408199 2.40153 0.0918007Z%22 fill=%22url(%23paint0_linear_0_7)%22/%3E%3Cg id=%22Vector_2%22%3E%3Cpath d=%22M1.70152 11.0918V11.8918ZM3.40153 11.0918V11.9918Z%22 fill=%22black%22/%3E%3Cpath d=%22M1.70152 11.0918V11.8918M3.40153 11.0918V11.9918%22 stroke-width=%220.45%22 stroke-linecap=%22round%22 stroke=%22%23E4DDD3%22/%3E%3C/g%3E%3C/g%3E%3Cdefs%3E%3ClinearGradient id=%22paint0_linear_0_7%22 x1=%220%22 y1=%223.5998e-09%22 x2=%229.19749%22 y2=%225.7343%22 gradientUnits=%22userSpaceOnUse%22%3E%3Cstop stop-color=%22%23FEFDFA%22/%3E%3Cstop offset=%220.6%22 stop-color=%22white%22/%3E%3Cstop offset=%221%22 stop-color=%22%23E4DDD3%22/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E',
+      'neck': 'data:image/svg+xml;charset=utf-8,%3Csvg preserveAspectRatio=%22none%22 overflow=%22visible%22 style=%22display: block;%22 width=%2250%22 height=%2239%22 viewBox=%220 0 50 39%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg id=%22%26%23235;%26%23170;%26%23169;%26%23194;%26%23183;%26%23234;%26%23176;%26%23128;%26%23236;%26%23138;%26%23180; %26%23194;%26%23183; %26%23235;%26%23170;%26%23184;%26%23237;%26%23134;%26%23181;%26%23234;%26%23179;%26%23188; %26%23236;%26%23158;%26%23144;%26%23236;%26%23151;%26%23176;%26%23236;%26%23138;%26%23164;%26%23235;%26%23159;%26%23189;%26%23234;%26%23178;%26%23140; %26%23236;%26%23151;%26%23176;%26%23234;%26%23178;%26%23176;%22%3E%3Cpath id=%22Vector%22 d=%22M29 17C31 14 36 14 39 17C41 20 42 24 41 27C40 30 37 31 34 30.5C32 32 28 30 28.5 28C25 27 26 23 27.5 22C26 20 27 18 29 17Z%22 fill=%22url(%23paint0_radial_0_4)%22/%3E%3Cpath id=%22Vector_2%22 opacity=%220.75%22 d=%22M32 26C34 28 37 28 39 26%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 stroke=%22white%22/%3E%3C/g%3E%3Cdefs%3E%3CradialGradient id=%22paint0_radial_0_4%22 cx=%220%22 cy=%220%22 r=%221%22 gradientUnits=%22userSpaceOnUse%22 gradientTransform=%22translate(34.6747 18.9812) scale(12.2138 13.019)%22%3E%3Cstop stop-color=%22white%22/%3E%3Cstop offset=%220.7%22 stop-color=%22%23FFFDF9%22/%3E%3Cstop offset=%221%22 stop-color=%22%23E8E1D7%22/%3E%3C/radialGradient%3E%3C/defs%3E%3C/svg%3E',
+      'head': 'data:image/svg+xml;charset=utf-8,%3Csvg preserveAspectRatio=%22none%22 overflow=%22visible%22 style=%22display: block;%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg id=%22%26%23235;%26%23168;%26%23184;%26%23235;%26%23166;%26%23172; %26%23194;%26%23183; %26%23236;%26%23151;%26%23176;%26%23234;%26%23178;%26%23176;%26%23235;%26%23182;%26%23128;%26%23236;%26%23153;%26%23128; %26%23237;%26%23152;%26%23128; %26%23236;%26%23136;%26%23152;%26%23236;%26%23160;%26%23149;%22%3E%3Cpath id=%22Vector%22 d=%22M7 6C4.75 5 3 7 2.5 9.75C2 11.75 1.5 15 1.5 17.75C1.5 20.5 3.25 21.75 5.75 21C8 20.5 8 17.5 8.25 14.25L7 6Z%22 fill=%22url(%23paint0_linear_0_22)%22/%3E%3Cpath id=%22Vector_2%22 d=%22M17 5.75C19.5 5 21 7.25 21.5 10C22.25 13 22.75 15.75 22.5 18.25C22.25 20.75 20.5 22 18.25 21C16.25 20.5 16 17 16 14.25L17 5.75Z%22 fill=%22url(%23paint1_linear_0_22)%22/%3E%3Cpath id=%22Vector_3%22 d=%22M4.25 11.5C3.75 12.75 3.5 15.5 3.75 17.5M5.25 8.5C4.5 10.25 4.25 12 4.25 13.25M20.25 11.75C20.75 13.75 21 16.25 20.5 18.25M19.25 8.5C20 10.25 20.25 11.75 20.25 13%22 stroke-width=%221.45714%22 stroke-linecap=%22round%22 stroke=%22white%22 stroke-opacity=%220.65%22/%3E%3Cpath id=%22Vector_4%22 d=%22M5 9.25C4.75 6.25 6 4.5 8 4C8.25 2.75 10 2 11.25 2.75C12.5 1.5 14.25 2.5 14.75 3.25C16.5 2.75 18.25 4 18.5 5.5C20 6.75 20 9 19.5 10.75C20.75 12 20.5 13.5 20 14.5C20.25 15.75 19.5 17.25 18.5 17.75C18.5 19.25 17 20.5 15.5 20.25C14.25 21.5 12.5 21.25 11.75 21C10.25 21.5 8.5 21 8 20.25C6.25 20.25 5.25 19 5.25 17.75C3.75 16.75 3.75 15.25 4.25 14C3.25 12.25 4 10.5 5 9.25Z%22 fill=%22url(%23paint2_radial_0_22)%22/%3E%3Cpath id=%22Vector_5%22 opacity=%220.8%22 d=%22M7.5 6.25C8.75 4.5 9.75 4.25 10.75 4.75M11.25 4C12 3.25 13 3.25 13.75 4M14.75 4.75C16 4.5 17.25 5.75 17.5 6.75%22 stroke-width=%222.57143%22 stroke-linecap=%22round%22 stroke=%22white%22/%3E%3Cpath id=%22Vector_6%22 opacity=%220.46%22 d=%22M8.25 13.025C9.32696 13.025 10.2 12.1184 10.2 11C10.2 9.88162 9.32696 8.975 8.25 8.975C7.17304 8.975 6.3 9.88162 6.3 11C6.3 12.1184 7.17304 13.025 8.25 13.025Z%22 fill=%22%23DDD6CB%22/%3E%3Cpath id=%22Vector_7%22 opacity=%220.46%22 d=%22M15.75 12.875C16.7993 12.875 17.65 11.9684 17.65 10.85C17.65 9.73162 16.7993 8.825 15.75 8.825C14.7007 8.825 13.85 9.73162 13.85 10.85C13.85 11.9684 14.7007 12.875 15.75 12.875Z%22 fill=%22%23DDD6CB%22/%3E%3Cpath id=%22Vector_8%22 d=%22M8.375 12.825C9.24485 12.825 9.95 12.0303 9.95 11.05C9.95 10.0697 9.24485 9.275 8.375 9.275C7.50515 9.275 6.8 10.0697 6.8 11.05C6.8 12.0303 7.50515 12.825 8.375 12.825Z%22 fill=%22url(%23paint3_radial_0_22)%22/%3E%3Cpath id=%22Vector_9%22 d=%22M15.65 12.675C16.506 12.675 17.2 11.8915 17.2 10.925C17.2 9.9585 16.506 9.175 15.65 9.175C14.794 9.175 14.1 9.9585 14.1 10.925C14.1 11.8915 14.794 12.675 15.65 12.675Z%22 fill=%22url(%23paint4_radial_0_22)%22/%3E%3Cpath id=%22Vector_10%22 d=%22M7.9 10.95C8.18995 10.95 8.425 10.6926 8.425 10.375C8.425 10.0574 8.18995 9.8 7.9 9.8C7.61005 9.8 7.375 10.0574 7.375 10.375C7.375 10.6926 7.61005 10.95 7.9 10.95Z%22 fill=%22white%22/%3E%3Cpath id=%22Vector_11%22 opacity=%220.8%22 d=%22M9 12.0375C9.14497 12.0375 9.2625 11.92 9.2625 11.775C9.2625 11.63 9.14497 11.5125 9 11.5125C8.85503 11.5125 8.7375 11.63 8.7375 11.775C8.7375 11.92 8.85503 12.0375 9 12.0375Z%22 fill=%22white%22/%3E%3Cpath id=%22Vector_12%22 d=%22M15.175 10.825C15.465 10.825 15.7 10.5676 15.7 10.25C15.7 9.93244 15.465 9.675 15.175 9.675C14.8851 9.675 14.65 9.93244 14.65 10.25C14.65 10.5676 14.8851 10.825 15.175 10.825Z%22 fill=%22white%22/%3E%3Cpath id=%22Vector_13%22 opacity=%220.8%22 d=%22M16.25 11.9125C16.395 11.9125 16.5125 11.795 16.5125 11.65C16.5125 11.505 16.395 11.3875 16.25 11.3875C16.105 11.3875 15.9875 11.505 15.9875 11.65C15.9875 11.795 16.105 11.9125 16.25 11.9125Z%22 fill=%22white%22/%3E%3Cpath id=%22Vector_14%22 opacity=%220.5%22 d=%22M6.4 14.775C7.15939 14.775 7.775 14.484 7.775 14.125C7.775 13.766 7.15939 13.475 6.4 13.475C5.64061 13.475 5.025 13.766 5.025 14.125C5.025 14.484 5.64061 14.775 6.4 14.775Z%22 fill=%22%23F0B6B9%22/%3E%3Cpath id=%22Vector_15%22 opacity=%220.5%22 d=%22M17.75 14.65C18.468 14.65 19.05 14.359 19.05 14C19.05 13.641 18.468 13.35 17.75 13.35C17.032 13.35 16.45 13.641 16.45 14C16.45 14.359 17.032 14.65 17.75 14.65Z%22 fill=%22%23F0B6B9%22/%3E%3Cpath id=%22Vector_16%22 d=%22M8.25 15.5C9.75 15 14.25 15 16 15.5C16 17.25 14.75 19.25 12.5 19.25C10.25 19.25 8.75 18 8.25 15.5Z%22 fill=%22%234D3534%22/%3E%3Cpath id=%22%26%23237;%26%23152;%26%23128; %26%23194;%26%23183; %26%23235;%26%23145;%26%23165;%26%23234;%26%23184;%26%23128;%26%23234;%26%23178;%26%23140; %26%23236;%26%23149;%26%23132;%26%23235;%26%23158;%26%23152;%26%23235;%26%23161;%26%23156; %26%23235;%26%23130;%26%23180;%26%23235;%26%23160;%26%23164;%26%23236;%26%23152;%26%23164;%26%23235;%26%23138;%26%23148; %26%23235;%26%23129;%26%23157;%22 d=%22M11.1767 17.5084C12.0267 17.2084 13.4267 17.2584 14.2267 17.5584L14.4767 19.9084C14.6767 22.3584 10.6767 22.3584 10.6767 20.1084L11.1767 17.5084Z%22 fill=%22url(%23paint5_linear_0_22)%22/%3E%3Cpath id=%22%26%23237;%26%23152;%26%23128; %26%23236;%26%23164;%26%23145;%26%23236;%26%23149;%26%23153;%26%23236;%26%23132;%26%23160;%22 opacity=%220.65%22 d=%22M12.5094 18.15C12.4294 18.95 12.5294 19.7 12.6094 20.3%22 stroke-width=%220.985714%22 stroke=%22%23CA7385%22/%3E%3Cpath id=%22Vector_17%22 d=%22M11.75 13C9.5 12.25 7 13.25 7 15C6.75 16.5 8.5 17.25 10 16.5C11 16.75 12 16.25 12.25 15.25C12.75 16.25 13.75 16.75 15 16.25C16.5 17 18 16 17.5 14.75C17 12.75 14 12 11.75 13Z%22 fill=%22url(%23paint6_radial_0_22)%22/%3E%3Cpath id=%22Vector_18%22 d=%22M10.25 13.5C10.25 12.5 14 12.25 14.25 13.5C14.25 14.5 13 15.5 12.25 15.5C11.25 15.25 10.25 14.5 10.25 13.5Z%22 fill=%22url(%23paint7_linear_0_22)%22/%3E%3Cpath id=%22Vector_19%22 opacity=%220.6%22 d=%22M11.75 13.4C12.2194 13.4 12.6 13.2881 12.6 13.15C12.6 13.0119 12.2194 12.9 11.75 12.9C11.2806 12.9 10.9 13.0119 10.9 13.15C10.9 13.2881 11.2806 13.4 11.75 13.4Z%22 fill=%22%23B4AFAB%22/%3E%3Cpath id=%22Vector_20%22 d=%22M12.25 15.25V16%22 stroke-width=%220.942857%22 stroke-linecap=%22round%22 stroke=%22%2366514A%22/%3E%3Cpath id=%22Vector_21%22 opacity=%220.8%22 d=%22M7.25 14.5C8 14 8.75 13.75 9.5 13.75M14.75 13.75C15.5 13.75 16.25 14 16.75 14.5M6.25 16.5C6.75 17.25 7.25 17.75 8.25 17.75M16 17.75C17 17.75 17.5 17.25 18 16.5%22 stroke-width=%221.37143%22 stroke-linecap=%22round%22 stroke=%22white%22/%3E%3C/g%3E%3Cdefs%3E%3ClinearGradient id=%22paint0_linear_0_22%22 x1=%221.5%22 y1=%225.73846%22 x2=%229.55444%22 y2=%227.49498%22 gradientUnits=%22userSpaceOnUse%22%3E%3Cstop stop-color=%22%23E5DED2%22/%3E%3Cstop offset=%220.42%22 stop-color=%22%23FFFEFB%22/%3E%3Cstop offset=%221%22 stop-color=%22%23DDD5C8%22/%3E%3C/linearGradient%3E%3ClinearGradient id=%22paint1_linear_0_22%22 x1=%2222.565%22 y1=%225.60406%22 x2=%2214.7007%22 y2=%227.24402%22 gradientUnits=%22userSpaceOnUse%22%3E%3Cstop stop-color=%22%23E1D9CB%22/%3E%3Cstop offset=%220.42%22 stop-color=%22%23FFFEFB%22/%3E%3Cstop offset=%221%22 stop-color=%22%23DDD5C8%22/%3E%3C/linearGradient%3E%3CradialGradient id=%22paint2_radial_0_22%22 cx=%220%22 cy=%220%22 r=%221%22 gradientUnits=%22userSpaceOnUse%22 gradientTransform=%22translate(10.4305 7.10925) scale(13.1392 15.0472)%22%3E%3Cstop stop-color=%22white%22/%3E%3Cstop offset=%220.57%22 stop-color=%22%23FFFEFB%22/%3E%3Cstop offset=%220.87%22 stop-color=%22%23F1EDE6%22/%3E%3Cstop offset=%221%22 stop-color=%22%23DCD5CC%22/%3E%3C/radialGradient%3E%3CradialGradient id=%22paint3_radial_0_22%22 cx=%220%22 cy=%220%22 r=%221%22 gradientUnits=%22userSpaceOnUse%22 gradientTransform=%22translate(7.682 10.056) scale(2.835 3.195)%22%3E%3Cstop stop-color=%22%2364615D%22/%3E%3Cstop offset=%220.44%22 stop-color=%22%23242422%22/%3E%3Cstop offset=%221%22 stop-color=%22%23111312%22/%3E%3C/radialGradient%3E%3CradialGradient id=%22paint4_radial_0_22%22 cx=%220%22 cy=%220%22 r=%221%22 gradientUnits=%22userSpaceOnUse%22 gradientTransform=%22translate(14.968 9.945) scale(2.79 3.15)%22%3E%3Cstop stop-color=%22%2364615D%22/%3E%3Cstop offset=%220.44%22 stop-color=%22%23242422%22/%3E%3Cstop offset=%221%22 stop-color=%22%23111312%22/%3E%3C/radialGradient%3E%3ClinearGradient id=%22paint5_linear_0_22%22 x1=%2210.6767%22 y1=%2217.3068%22 x2=%2213.7388%22 y2=%2221.3239%22 gradientUnits=%22userSpaceOnUse%22%3E%3Cstop stop-color=%22%23D67586%22/%3E%3Cstop offset=%220.7%22 stop-color=%22%23F6A6B6%22/%3E%3Cstop offset=%221%22 stop-color=%22%23E98A9D%22/%3E%3C/linearGradient%3E%3CradialGradient id=%22paint6_radial_0_22%22 cx=%220%22 cy=%220%22 r=%221%22 gradientUnits=%22userSpaceOnUse%22 gradientTransform=%22translate(11.2248 13.7449) scale(8.49768 3.38819)%22%3E%3Cstop stop-color=%22white%22/%3E%3Cstop offset=%220.8%22 stop-color=%22%23FCF9F4%22/%3E%3Cstop offset=%221%22 stop-color=%22%23EAE4DA%22/%3E%3C/radialGradient%3E%3ClinearGradient id=%22paint7_linear_0_22%22 x1=%2210.25%22 y1=%2212.6537%22 x2=%2211.6479%22 y2=%2215.9278%22 gradientUnits=%22userSpaceOnUse%22%3E%3Cstop stop-color=%22%2366615E%22/%3E%3Cstop offset=%220.5%22 stop-color=%22%232D2B2A%22/%3E%3Cstop offset=%221%22 stop-color=%22%23171919%22/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E',
+    };
+    // 강아지 그림: Figma의 웃는 말티즈 전신을 원본 레이어와 위치 그대로 조합해요.
+    // 다리(dleg)와 꼬리(tail)는 따로 된 그림이라 걸을 때 흔들려요.
+    const DOG_SVG = `<div class="dog-flip" aria-hidden="true"><div class="dog-all">
+        <img class="dog-shadow" src="${DOG_ART['shadow']}" alt="">
+        <img class="dog-tail tail" src="${DOG_ART['tail']}" alt="">
+        <img class="dog-leg-back-far dleg b" src="${DOG_ART['leg-back-far']}" alt="">
+        <img class="dog-leg-front-far dleg a" src="${DOG_ART['leg-front-far']}" alt="">
+        <img class="dog-body" src="${DOG_ART['body']}" alt="">
+        <img class="dog-leg-back-near dleg a" src="${DOG_ART['leg-back-near']}" alt="">
+        <img class="dog-leg-front-near dleg b" src="${DOG_ART['leg-front-near']}" alt="">
+        <img class="dog-neck" src="${DOG_ART['neck']}" alt="">
+        <img class="dog-head" src="${DOG_ART['head']}" alt="">
+      </div></div>`;
     const HEART_SVG = `<svg viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21 C5 15.5 1 12 1 7 A5.5 5.5 0 0 1 12 4.5 A5.5 5.5 0 0 1 23 7 C23 12 19 15.5 12 21Z" fill="url(#g-bow)" stroke="#fff" stroke-width="1.5"/><ellipse cx="7" cy="7" rx="2.2" ry="1.3" fill="#fff" opacity=".7" transform="rotate(-30 7 7)"/></svg>`;
     const LOCATE_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
         <circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/>
@@ -1008,6 +1208,9 @@
       openOnly: false,
       minRating: 0,
       base: null,          // 검색 기준점 { pos, name, isMe } — 내 위치 또는 검색한 장소
+      pets: [],            // 우리 동네 반려견 동반 장소 (목록 맨 앞에 소개)
+      petDistrict: '',
+      petCache: new Map(), // 동네 이름 → 장소들
       results: [],
       activeId: null,
       token: 0,
@@ -1015,7 +1218,9 @@
     };
 
     let map, Place, AdvancedMarkerElement, radiusCircle, routeLine, baseMarker;
+    let MapClass, ColorSchemeEnum, ControlPositionEnum;
     let dog, dogPos, dogFrame, dogIdleTimer, accuracyCircle, locateBtn, watchId, statusTimer;
+    let lastMarkerTap = 0; // 마커를 누른 직후의 지도 클릭은 '바깥 누르기'로 치지 않아요
     let dogTrip = false;   // 강아지가 식당에 가 있는 중 (그동안은 내 위치를 따라가지 않아요)
     let centerOnNextFix = false, rebaseOnFix = false, eatTimers = [], pickTimer, picking = false;
     const markers = new Map();
@@ -1048,7 +1253,7 @@
 
     /* ---------- 초기화 ---------- */
     async function init() {
-      const [{ Map }, placesLib, markerLib, { ControlPosition }] = await Promise.all([
+      const [{ Map }, placesLib, markerLib, { ControlPosition, ColorScheme }] = await Promise.all([
         google.maps.importLibrary('maps'),
         google.maps.importLibrary('places'),
         google.maps.importLibrary('marker'),
@@ -1057,17 +1262,10 @@
       Place = placesLib.Place;
       AdvancedMarkerElement = markerLib.AdvancedMarkerElement;
 
-      map = new Map($('map'), {
-        center: CONFIG.koreaCenter,
-        zoom: 7,
-        maxZoom: 20,
-        mapId: CONFIG.mapId,
-        fullscreenControl: true,
-        mapTypeControl: false,
-        streetViewControl: false,
-        clickableIcons: false,
-        gestureHandling: 'greedy',
-      });
+      MapClass = Map;
+      ColorSchemeEnum = ColorScheme;
+      ControlPositionEnum = ControlPosition;
+      buildMap();
 
       // 기준점 말풍선 (검색한 장소 이름 / 내 위치) — setBase에서 자리를 잡아요
       const st = document.createElement('div');
@@ -1077,18 +1275,12 @@
       // 검색 반경 원
       radiusCircle = new google.maps.Circle({
         radius: state.radius, clickable: false,
-        strokeColor: '#e07a4f', strokeOpacity: 0.5, strokeWeight: 1,
-        fillColor: '#e07a4f', fillOpacity: 0.06,
+        strokeOpacity: 0.5, strokeWeight: 1, fillOpacity: 0.06,
       });
 
-      // 기준점 → 선택한 식당 점선
-      routeLine = new google.maps.Polyline({
-        map, zIndex: 5, strokeOpacity: 0,
-        icons: [{
-          icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: '#e07a4f', scale: 3 },
-          offset: '0', repeat: '12px',
-        }],
-      });
+      // 기준점 → 선택한 식당: 강아지 발자국 (왼발·오른발이 번갈아 찍혀요)
+      routeLine = new google.maps.Polyline({ map, zIndex: 5, strokeOpacity: 0 });
+      applyMapColors();
 
       // 강아지 (식당을 고르거나 현위치를 켜면 나타나요) + 내 위치 정확도 원
       const d = document.createElement('div');
@@ -1110,7 +1302,7 @@
         else if (me.pos) { map.panTo(me.pos); setBase(me.pos, '내 위치', true); }
       });
       setLocateState('off');
-      map.controls[ControlPosition.RIGHT_BOTTOM].push(locateBtn);
+      map.controls[ControlPositionEnum.RIGHT_BOTTOM].push(locateBtn);
 
       renderChips();
       bindControls();
@@ -1121,6 +1313,55 @@
       $('summary').textContent = '내 위치를 확인하는 중…';
       startTracking({ rebase: true });
       setTimeout(() => { if (!state.base) useFallbackBase(); }, CONFIG.locateWaitMs);
+    }
+
+    /* ---------- 지도 만들기 ----------
+     * 지도 색(라이트/다크)은 지도를 만들 때만 정할 수 있어요. 그래서 테마를 바꾸면 새 캔버스에
+     * 지도를 다시 만들고, 위치·확대와 보이던 마커·강아지·발자국·원을 그대로 옮겨 붙여요. */
+    function buildMap() {
+      const old = map;
+      const canvas = document.createElement('div');
+      canvas.className = 'map-canvas';
+      $('map').append(canvas);
+      map = new MapClass(canvas, {
+        center: old ? old.getCenter() : CONFIG.koreaCenter,
+        zoom: old ? old.getZoom() : 7,
+        maxZoom: 20,
+        mapId: CONFIG.mapId,
+        colorScheme: currentTheme() === 'dark' ? ColorSchemeEnum.DARK : ColorSchemeEnum.LIGHT,
+        fullscreenControl: true,
+        mapTypeControl: false,
+        streetViewControl: false,
+        clickableIcons: false,
+        gestureHandling: 'greedy',
+      });
+      // 지도 빈 곳을 누르면 고른 매장을 풀고 모든 마커를 다시 보여 줘요
+      map.addListener('click', () => {
+        if (Date.now() - lastMarkerTap < 400) return;
+        clearSelection();
+      });
+      if (!old) return;
+      if (locateBtn) map.controls[ControlPositionEnum.RIGHT_BOTTOM].push(locateBtn);
+      markers.forEach(({ marker }) => { if (marker.map) marker.map = map; });
+      [baseMarker, dog].forEach((m) => { if (m?.map) m.map = map; });
+      [radiusCircle, routeLine, accuracyCircle].forEach((o) => { if (o?.getMap()) o.setMap(map); });
+      old.getDiv().remove();
+    }
+
+    // 테마에 맞는 지도 위 색: 반경 원(포인트 색), 발자국(라이트는 갈색, 다크는 살구빛)
+    function applyMapColors() {
+      const accent = cssVar('--accent'), trail = cssVar('--trail');
+      radiusCircle?.setOptions({ strokeColor: accent, fillColor: accent });
+      const paw = (side) => ({
+        path: PAW_PATH, anchor: new google.maps.Point(side * 3.2, 0),
+        fillColor: trail, fillOpacity: 0.6, strokeWeight: 0, scale: 1.5,
+      });
+      routeLine?.setOptions({
+        icons: [
+          { icon: paw(1), offset: '10px', repeat: '30px' },
+          { icon: paw(-1), offset: '25px', repeat: '30px' },
+        ],
+      });
     }
 
     /* ---------- 기준점 (내 위치 / 검색한 장소) ---------- */
@@ -1203,8 +1444,16 @@
     });
 
     document.body.insertAdjacentHTML('afterbegin', GRADIENTS);   // 아이콘·강아지가 같이 쓰는 그러데이션
+    $('themeToggle').addEventListener('click', () =>
+      applyTheme(currentTheme() === 'dark' ? 'light' : 'dark', { persist: true }));
+    prefersDark.addEventListener('change', (e) => {          // 직접 고른 적 없으면 기기 설정을 계속 따라가요
+      if (!readTheme()) applyTheme(e.matches ? 'dark' : 'light');
+    });
+    applyTheme(currentTheme());                               // 토글 아이콘·라벨만 맞춰요
+
     $('baseIcon').innerHTML = ic(PIN_ICON);
     document.querySelectorAll('.bone').forEach((b) => { b.innerHTML = ic(BONE_ICON); });
+    $('pickResultDog').src = DOG_ART.head;
 
     (function boot() {
       const key = APP_CONFIG.mapsApiKey || readStoredKey();
@@ -1258,6 +1507,10 @@
       $('pickClose').addEventListener('click', closePickPanel);
       $('pickPanel').addEventListener('keydown', (e) => { if (e.key === 'Escape') closePickPanel(); });
       $('pickPanel').addEventListener('submit', (e) => { e.preventDefault(); pickWithCriteria(); });
+      $('pickAgain').addEventListener('click', () => { hidePickResult(); dogPick(); });
+      $('pickOk').addEventListener('click', hidePickResult);
+      $('pickResultClose').addEventListener('click', hidePickResult);
+      $('pickResult').addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePickResult(); });
       $('openOnly').addEventListener('change', (e) => { state.openOnly = e.target.checked; render(); });
 
       $('cards').addEventListener('click', (e) => {
@@ -1289,6 +1542,8 @@
           state.cache.set(key, items);
         }
         if (token !== state.token) return;          // 더 새 검색이 시작됐으면 무시
+        await loadPets(items);
+        if (token !== state.token) return;
         state.results = items;
         state.activeId = null;
         hideStatus();
@@ -1307,6 +1562,79 @@
     function boundsAround(c, r) {
       const dLat = r / 111320, dLng = r / (111320 * Math.cos(c.lat * Math.PI / 180));
       return { north: c.lat + dLat, south: c.lat - dLat, east: c.lng + dLng, west: c.lng - dLng };
+    }
+
+    // 구글 장소 → 화면에서 쓰는 식당 정보
+    async function toItem(p, center, cat) {
+      const loc = { lat: p.location.lat(), lng: p.location.lng() };
+      const d = distanceM(center, loc);
+      let open;
+      try { open = await p.isOpen(); } catch { open = undefined; }
+      return {
+        id: p.id,
+        name: p.displayName,
+        loc,
+        distance: d,
+        walk: walkMin(d),
+        open,
+        rating: p.rating,
+        reviews: p.userRatingCount || 0,
+        type: p.primaryTypeDisplayName || '',
+        kind: kindFor(p.displayName || '', p.primaryTypeDisplayName || '', p.primaryType, cat),
+        price: PRICE[p.priceLevel] || '',
+        url: p.googleMapsURI,
+        photo: p.photos?.[0],
+        status: p.businessStatus,
+        address: p.formattedAddress || '',
+      };
+    }
+
+    // 주소에서 동네(구, 없으면 시·군)를 찾아요. 예) '대한민국 서울특별시 영등포구 여의대로 108' → 영등포구
+    function districtOf(address) {
+      const words = address.split(/\s+/);
+      return words.find((w) => /.+구$/.test(w))
+        || words.find((w) => /.+[시군]$/.test(w) && !/(특별|광역|특별자치)시$/.test(w))
+        || '';
+    }
+
+    // 우리 동네 반려견 동반 장소: 기준점이 있는 구 안에서 '애견동반'으로 찾고,
+    // 구글이 반려견 동반 가능이라고 했거나 이름에 애견·반려견 같은 말이 있는 곳만 골라 평점 순으로.
+    async function fetchPets(district, center) {
+      const { places } = await Place.searchByText({
+        textQuery: `${district} ${PET.query}`,
+        fields: PET_FIELDS,
+        locationBias: { center, radius: PET.biasM },
+        maxResultCount: 20,
+        language: 'ko',
+        region: 'kr',
+      });
+      const all = CATEGORIES[0];
+      const picked = (places || []).filter((p) =>
+        (p.formattedAddress || '').includes(district)
+        && p.businessStatus !== 'CLOSED_PERMANENTLY'
+        && (p.allowsDogs === true || PET.words.test(p.displayName || '')));
+      const items = await Promise.all(picked.map((p) => toItem(p, center, all)));
+      return items
+        .sort((a, b) => (b.rating || 0) - (a.rating || 0) || b.reviews - a.reviews)
+        .slice(0, PET.max);
+    }
+
+    // 지금 기준점의 동네로 반려견 동반 장소를 준비해요 (동네별로 한 번만 검색)
+    async function loadPets(results) {
+      const district = districtOf(results.find((it) => districtOf(it.address))?.address || '');
+      if (!district) { state.pets = []; state.petDistrict = ''; return; }
+      let pets = state.petCache.get(district);
+      if (!pets) {
+        try { pets = await fetchPets(district, state.base.pos); }
+        catch (err) { console.warn('반려견 동반 장소를 못 불러왔어요', err); pets = []; }
+        state.petCache.set(district, pets);
+      }
+      const base = state.base.pos;
+      state.pets = pets.map((it) => {
+        const d = distanceM(base, it.loc);
+        return { ...it, distance: d, walk: walkMin(d) };
+      });
+      state.petDistrict = district;
     }
 
     async function fetchPlaces(cat, radius) {
@@ -1332,28 +1660,7 @@
         }));
       }
 
-      const items = await Promise.all((places || []).map(async (p) => {
-        const loc = { lat: p.location.lat(), lng: p.location.lng() };
-        const d = distanceM(center, loc);
-        let open;
-        try { open = await p.isOpen(); } catch { open = undefined; }
-        return {
-          id: p.id,
-          name: p.displayName,
-          loc,
-          distance: d,
-          walk: walkMin(d),
-          open,
-          rating: p.rating,
-          reviews: p.userRatingCount || 0,
-          type: p.primaryTypeDisplayName || '',
-          kind: kindFor(p.displayName || '', p.primaryTypeDisplayName || '', p.primaryType, cat),
-          price: PRICE[p.priceLevel] || '',
-          url: p.googleMapsURI,
-          photo: p.photos?.[0],
-          status: p.businessStatus,
-        };
-      }));
+      const items = await Promise.all((places || []).map((p) => toItem(p, center, cat)));
 
       // 네모 범위의 모서리 쪽은 반경 밖이라 한 번 더 걸러요.
       return items.filter((it) => it.distance <= radius && it.status !== 'CLOSED_PERMANENTLY');
@@ -1372,21 +1679,34 @@
         .sort(sorters[state.sort]);
     }
 
+    // 우리 동네 반려견 동반 장소 (영업 중·평점 필터는 똑같이 적용)
+    function visiblePets() {
+      return state.pets
+        .filter((it) => !state.openOnly || it.open === true)
+        .filter((it) => (it.rating || 0) >= state.minRating);
+    }
+
     function render() {
-      const list = visibleItems();
+      const pets = visiblePets();
+      const petIds = new Set(pets.map((it) => it.id));
+      const list = visibleItems().filter((it) => !petIds.has(it.id));   // 겹치면 반려견 쪽에만
       stopPicking();
+      hidePickResult();
 
       markers.forEach(({ marker }) => { marker.map = null; });
       markers.clear();
       clearLine();
-      if (!list.some((it) => it.id === state.activeId)) state.activeId = null;
+      if (![...list, ...pets].some((it) => it.id === state.activeId)) state.activeId = null;
 
-      list.forEach((it, i) => {
+      const pins = [...pets.map((it) => [it, true]), ...list.map((it) => [it, false])];
+      pins.forEach(([it, pet]) => {
         const el = document.createElement('div');
-        el.className = 'pin';
-        el.innerHTML = `<span class="pin-icon" aria-hidden="true">${ic(KINDS[it.kind].icon)}</span><span class="pin-num">${i + 1}</span>`;
+        el.className = pet ? 'pin pet' : 'pin';
+        const badge = pet ? ic(PAW_ICON) : list.indexOf(it) + 1;
+        el.innerHTML = `<span class="pin-icon" aria-hidden="true">${ic(KINDS[it.kind].icon)}</span><span class="pin-num">${badge}</span>`;
         el.addEventListener('click', (e) => {
           e.stopPropagation();
+          lastMarkerTap = Date.now();
           select(it.id, { scroll: true });
         });
         const marker = new AdvancedMarkerElement({ map, position: it.loc, content: el, title: it.name });
@@ -1395,12 +1715,18 @@
 
       const catLabel = CATEGORIES.find((c) => c.id === state.category).label;
       const where = state.base ? `<span class="fi" aria-hidden="true">${ic(PIN_ICON)}</span> ${esc(state.base.name)}` : '';
+      const petNote = pets.length ? ` · <span class="pet-tag">반려견 동반 ${pets.length}곳</span>` : '';
       $('summary').innerHTML = list.length
-        ? `<b>${list.length}곳</b> · ${esc(catLabel)} · 반경 ${fmtDist(state.radius)} · ${where}`
-        : `${esc(catLabel)} · 결과 없음 · ${where}`;
+        ? `<b>${list.length}곳</b> · ${esc(catLabel)} · 반경 ${fmtDist(state.radius)} · ${where}${petNote}`
+        : `${esc(catLabel)} · 결과 없음 · ${where}${petNote}`;
 
-      $('cards').innerHTML = list.length
-        ? list.map(cardHTML).join('')
+      const petBlock = pets.length
+        ? `<div class="cards-label"><span class="fi" aria-hidden="true">${ic(PAW_ICON)}</span><span>${esc(state.petDistrict)}<br>반려견 동반</span></div>`
+          + pets.map((it, i) => cardHTML(it, i, true)).join('')
+          + (list.length ? '<div class="cards-label plain">근처<br>맛집</div>' : '')
+        : '';
+      $('cards').innerHTML = (pets.length || list.length)
+        ? petBlock + list.map((it, i) => cardHTML(it, i)).join('')
         : `<div class="empty">${state.base
           ? '조건에 맞는 곳이 없어요. 반경을 넓히거나 다른 메뉴·평점을 골라 보세요.'
           : '내 위치를 확인하고 있어요. 위 검색창에서 동네를 찾아도 돼요.'}</div>`;
@@ -1408,17 +1734,18 @@
       if (state.activeId) select(state.activeId, { pan: false });
     }
 
-    function cardHTML(it, i) {
+    function cardHTML(it, i, pet = false) {
+      const num = pet ? `<span class="num paw">${ic(PAW_ICON)}</span>` : `<span class="num">${i + 1}</span>`;
       let thumb;
       if (it.photo) {
         const uri = it.photo.getURI({ maxWidth: 400, maxHeight: 300 });
         const a = it.photo.authorAttributions?.[0];
         thumb = `<div class="thumb" style="background-image:url('${esc(uri)}')">
-            <span class="num">${i + 1}</span>
+            ${num}
             ${a ? `<a class="credit" href="${esc(a.uri)}" target="_blank" rel="noopener">사진: ${esc(a.displayName)}</a>` : ''}
           </div>`;
       } else {
-        thumb = `<div class="thumb noimg"><span class="num">${i + 1}</span>사진 없음</div>`;
+        thumb = `<div class="thumb noimg">${num}사진 없음</div>`;
       }
 
       const rating = it.rating
@@ -1433,9 +1760,10 @@
       const kind = KINDS[it.kind];
       const kindTag = `<span class="kind"><span class="fi" aria-hidden="true">${ic(kind.icon)}</span> ${esc(kind.label)}</span>`;
       const gType = it.type && !it.type.startsWith(kind.label) ? it.type : '';
-      const meta = [kindTag, ...[gType, it.price].filter(Boolean).map(esc)].join(' · ');
+      const petTag = pet ? '<span class="pet-tag">반려견 동반</span>' : '';
+      const meta = [petTag, kindTag, ...[gType, it.price].filter(Boolean).map(esc)].filter(Boolean).join(' · ');
 
-      return `<article class="card" data-id="${esc(it.id)}" tabindex="0" role="button" aria-label="${esc(it.name)}">
+      return `<article class="card${pet ? ' pet' : ''}" data-id="${esc(it.id)}" tabindex="0" role="button" aria-label="${esc(it.name)}">
           ${thumb}
           <div class="body">
             <div class="meta">${meta}</div>
@@ -1452,17 +1780,20 @@
 
     /* ---------- 선택(활성화) ---------- */
     function select(id, { scroll = false, pan = true } = {}) {
-      const it = state.results.find((r) => r.id === id);
+      const it = findItem(id);
       if (!it) return;
       state.activeId = id;
       // 목록을 펼쳐 둔 채 고르면 지도(강아지)가 보이게 중간 높이로 내리고, 고른 카드로 넘겨요
+      if (pan) hidePickResult();
       if (pan && sheetState !== 'peek') setSheet('peek');
       if (pan) scroll = true;
 
+      // 고른 매장만 남기고 다른 마커는 잠깐 숨겨요
       markers.forEach(({ marker, el }, key) => {
         const on = key === id;
         el.classList.toggle('active', on);
         marker.zIndex = on ? 999 : null;
+        marker.map = on ? map : null;
       });
       document.querySelectorAll('.card').forEach((c) =>
         c.classList.toggle('active', c.dataset.id === id));
@@ -1486,7 +1817,22 @@
 
     /* ---------- 점선 + 강아지 ---------- */
     const lerp = (a, b, f) => ({ lat: a.lat + (b.lat - a.lat) * f, lng: a.lng + (b.lng - a.lng) * f });
-    const activeItem = () => state.results.find((r) => r.id === state.activeId);
+    const findItem = (id) => state.results.find((r) => r.id === id) || state.pets.find((r) => r.id === id);
+    const activeItem = () => findItem(state.activeId);
+
+    // 고른 매장 풀기: 마커를 모두 다시 보여 주고 발자국·결과 카드를 지워요
+    function clearSelection() {
+      if (!state.activeId) return;
+      state.activeId = null;
+      hidePickResult();
+      markers.forEach(({ marker, el }) => {
+        el.classList.remove('active');
+        marker.zIndex = null;
+        marker.map = map;
+      });
+      document.querySelectorAll('.card.active').forEach((c) => c.classList.remove('active'));
+      clearLine();
+    }
 
     // 점선 출발점: 기준점이 '내 위치'면 지금 내 자리, 아니면 검색한 장소
     function lineOrigin() {
@@ -1495,16 +1841,19 @@
       return { pos: b ? b.pos : CONFIG.koreaCenter, fromMe: false };
     }
 
-    // 식당까지 점선을 긋고, 강아지가 출발점에서 식당까지 한 번 걸어가서 냠냠해요.
+    // 강아지가 출발점에서 식당까지 한 번 걸어가며 발자국을 남기고, 도착하면 냠냠해요.
     // 다 먹은 뒤에도 식당 옆에 그대로 있어요. (현위치가 켜져 있어도 따라오지 않고,
     // 목록이 새로 그려지거나 '내 위치'를 다시 누르면 내 자리로 돌아와요.)
     function showLine(it, { walk = true } = {}) {
       const origin = lineOrigin();
-      routeLine.setPath([origin.pos, it.loc]);
       if (walk) {
         dogTrip = true;
-        walkDog(origin.pos, it.loc, () => eatIcon(it.id));
-      } else if (!me.pos) {                           // 이미 도착해 있던 자리에 그대로 둬요
+        routeLine.setPath([origin.pos, origin.pos]);   // 발자국은 강아지가 걸은 만큼만
+        walkDog(origin.pos, it.loc, () => eatIcon(it.id), (pos) => routeLine.setPath([origin.pos, pos]));
+        return;
+      }
+      routeLine.setPath([origin.pos, it.loc]);
+      if (!me.pos) {                           // 이미 도착해 있던 자리에 그대로 둬요
         dog.map = map;
         dog.content.classList.add('trail');
         dogPos = it.loc;
@@ -1531,7 +1880,7 @@
 
 
     // from → to 로 강아지가 한 번 걸어가고, 도착하면 멈춰서 그 자리에 있어요. 도착하면 onArrive 실행.
-    function walkDog(from, to, onArrive) {
+    function walkDog(from, to, onArrive, onStep) {
       const el = dog.content;
       cancelAnimationFrame(dogFrame);
       clearTimeout(dogIdleTimer);
@@ -1543,10 +1892,11 @@
       if (reduceMotion.matches) {                     // 움직임 줄이기 설정이면 바로 도착 (연출 없이)
         dogPos = to;
         dog.position = to;
+        onStep?.(to);
         return;
       }
       const duration = Math.min(DOG_WALK.maxMs, Math.max(DOG_WALK.minMs, distanceM(from, to) * DOG_WALK.msPerM));
-      animateDog(from, to, duration, onArrive);
+      animateDog(from, to, duration, onArrive, onStep);
     }
 
     // 도착하면 식당 아이콘을 냠냠 먹고(0.9초), 하트를 뿅뿅 날리며 좋아해요(약 2초). 아이콘은 다시 채워져요.
@@ -1596,7 +1946,7 @@
       dog.map = null;
     }
 
-    function animateDog(from, to, duration, onDone) {
+    function animateDog(from, to, duration, onDone, onStep) {
       const el = dog.content;
       el.classList.add('moving');
       const t0 = performance.now();
@@ -1604,6 +1954,7 @@
         const t = Math.min(1, (now - t0) / duration);
         dogPos = lerp(from, to, t);
         dog.position = dogPos;
+        onStep?.(dogPos);
         if (t < 1) {
           dogFrame = requestAnimationFrame(step);
         } else {
@@ -1737,7 +2088,9 @@
         return;
       }
       // 방금 고른 곳은 빼고 골라요 (한 곳뿐이면 그곳)
-      const pool = list.length > 1 ? list.filter((it) => it.id !== state.activeId) : list;
+      const prevId = state.activeId;
+      clearSelection();                               // 숨겨 둔 마커를 다시 보여 주고 골라요
+      const pool = list.length > 1 ? list.filter((it) => it.id !== prevId) : list;
       const pick = pool[Math.floor(Math.random() * pool.length)];
 
       picking = true;
@@ -1768,10 +2121,32 @@
         pickTimer = setTimeout(() => {
           stopPicking();
           select(pick.id, { scroll: true });
-          flashStatus(`멍! 오늘은 ${pick.name} 어때요?`);
+          showPickResult(pick);
         }, 450);
       };
       tick();
+    }
+
+    // 고른 결과 카드: 식당 이름·종류·평점·거리와 '다시 골라줘 / 좋아요' 버튼
+    function showPickResult(it) {
+      const kind = KINDS[it.kind];
+      $('pickResultIcon').innerHTML = ic(kind.icon);
+      $('pickResultTitle').textContent = it.name;
+      const bits = [esc(kind.label)];
+      if (it.rating) bits.push(`<b>★ ${it.rating.toFixed(1)}</b>`);
+      bits.push(`도보 약 ${it.walk}분`, fmtDist(it.distance));
+      if (it.open === true) bits.push('영업 중');
+      $('pickResultMeta').innerHTML = bits.join(' · ');
+      const box = $('pickResult');
+      box.hidden = false;
+      box.classList.remove('pop');
+      void box.offsetWidth;                           // 다시 열 때도 통 튀어나오게
+      box.classList.add('pop');
+      $('pickOk').focus({ preventScroll: true });
+    }
+
+    function hidePickResult() {
+      $('pickResult').hidden = true;
     }
 
     function stopPicking() {
@@ -1815,7 +2190,7 @@
       setLocateState('off');
       updateBaseMarker();                             // 강아지 대신 기준점 말풍선을 다시 보여요
       const it = activeItem();
-      if (it) routeLine.setPath([lineOrigin().pos, it.loc]);
+      if (it && !dogTrip) routeLine.setPath([lineOrigin().pos, it.loc]);
     }
 
     function onPosition(p) {
@@ -1838,7 +2213,7 @@
       updateBaseMarker();
 
       const it = activeItem();
-      if (it) routeLine.setPath([lineOrigin().pos, it.loc]);
+      if (it && !dogTrip) routeLine.setPath([lineOrigin().pos, it.loc]);
     }
 
     function onPositionError(err) {
